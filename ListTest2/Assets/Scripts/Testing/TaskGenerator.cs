@@ -4,16 +4,20 @@ using UnityEngine;
 
 public class TaskGenerator : MonoBehaviour
 {
-    public MoveTaskList moveTaskList;
+    TaskManagerScript taskManagerScript;
+    public GameObject taskManager;
 
-    public void GenMoveTaskTest(int amount)
+    public void Start()
     {
-        for (int i = 0; i < amount; i++)
+       taskManagerScript = taskManager.GetComponent<TaskManagerScript>();
+    }
+
+    public void GenMoveTaskTest(int numberOfTasks)
+    {
+        for (int i = 0; i < numberOfTasks; i++)
         {
             Vector2 randomVector2 = new Vector2(Random.Range(-5, 5), Random.Range(-5, 5));
-            MoveTask task = new MoveTask("A new task" + Random.Range(1, 2000), randomVector2, Random.Range(1, 10));
-            moveTaskList.AddTask(task);
+            taskManagerScript.CreateTask_WalkToPosition(100, randomVector2);
         }
-        //moveTaskList.PrintList();
     }
 }

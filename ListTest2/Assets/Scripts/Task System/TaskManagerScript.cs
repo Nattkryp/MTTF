@@ -23,22 +23,31 @@ public class TaskManagerScript : MonoBehaviour
     }
 
 
-    public void RequestNextTask(GameObject owner)
+    public Task RequestNextTask(GameObject owner)
     {
-        //var worker = owner.GetComponent<WorkerAIScript>();
+        var worker = owner.GetComponent<WorkerAIScript>();
         if (tasks.Count > 0)
         {
             //Write check on which ids to get!
 
-            //var task = tasks[0];
-            //tasks.RemoveAt(0);
+            var task = tasks[0];
+            tasks.RemoveAt(0);
 
             //Check if owner is null to get it!
             tasks[0].SetOwner(owner);
-            //return task;
+            
+            //need to check if is not completed?
+            return task;
         }
-        //else
-            //return null;
+        else
+            return null;
+    }
+
+    public void SetTaskCompleted(Task task) {
+
+        task.SetPrio(9999);  //we want to do this?
+        task.SetCompleted(); //When requesting this on multiple places I guess we want to check vs this
+        task.SetOwner(null); //owned by some kind of history object for reference and not be confused with "unassigned" tasks? also see prio. 
     }
 
     public List<Task> RequestListOfTasksForSpecificOwner(GameObject owner)//Only a copy list. Not the actual list.

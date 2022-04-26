@@ -4,12 +4,17 @@ using UnityEngine;
 
 public class MoveTaskPanel : MonoBehaviour
 {
-    public MoveTaskList moveTaskList;
+    TaskManagerScript taskManagerScript;
+    public GameObject taskManager;
+    
+    
     public GameObject rowPrefab;
+        
     public float updateTimer;
 
     public void Start()
     {
+        taskManagerScript = taskManager.GetComponent<TaskManagerScript>();
         MoveTasklistRowData row = rowPrefab.GetComponent<MoveTasklistRowData>();
     }
 
@@ -41,20 +46,21 @@ public class MoveTaskPanel : MonoBehaviour
     public void UpdateData()
     {
         //Check if there are tasks to populate the panel with
-        if (moveTaskList.moveTaskList.Count > 0)
+        if (taskManagerScript.tasks.Count > 0)
         {
-            foreach (MoveTask movetask in moveTaskList.moveTaskList)
+            foreach (Task task in taskManagerScript.tasks)
             {
                 //create the rowobject which will instantiate without data
                 GameObject newRowPrefab = Instantiate(rowPrefab, transform);
                 Debug.Log("Created a row");
 
+
                 //update the created row's script with data from list
                 MoveTasklistRowData newRowData = newRowPrefab.GetComponent<MoveTasklistRowData>();
-                newRowData.description = movetask.description;
-                newRowData.posX = movetask.moveToPos.x;
-                newRowData.posY = movetask.moveToPos.y;
-                newRowData.priority = movetask.priority;
+                newRowData.description = task.GetDescription();
+                newRowData.posX = task.GetTargetPosition().x;
+                newRowData.posY = task.GetTargetPosition().y;
+                newRowData.priority = task.GetPrio();
 
                 //Run the update method in the row
                 newRowData.UpdateValues();
