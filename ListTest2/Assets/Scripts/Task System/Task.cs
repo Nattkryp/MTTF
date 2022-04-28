@@ -1,89 +1,75 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Pathfinding;
 
-public class Task
+
+public interface ITask
 {
-    int taskId, prio;
-    string title, desc, notes;
-    GameObject owner, machine;
-    float progress, time;
-    bool received, started, onHold, completed;
-    Vector2 targetPos;
-
-    public Task CreateTask(int taskId, int prio, string title, string desc, float time, Vector2 targetPos)
+    enum Status
     {
-        this.taskId = taskId;
-        this.completed = false;
-        this.started = false;
-        this.prio = prio;
-        this.title = title;
-        this.desc = desc;
-        this.time = time;
-        this.targetPos = targetPos;
-        return this;
+        Available,
+        Ongoing,
+        OnHold,
+        Completed
     }
 
-    public int GetTaskID()
+    int priority { get; set; }
+    string title { get; set; }
+    string desc { get; set; }
+    GameObject owner { get; set; }
+    Status status { get; set; }
+
+    void DoTask();
+}
+
+public class TaskWalkToPosition : ITask
+{
+    public int priority { get; set; }
+    public string title { get; set; }
+    public string desc { get; set; }
+    public GameObject owner { get; set; }
+    public ITask.Status status { get; set; }
+    public Vector2 destination { get; set; }
+    ITask.Status ITask.status { get; set; }
+
+    public TaskWalkToPosition(int priority, Vector2 destination)
     {
-        return this.taskId;
+        this.priority = priority;
+        this.title = "Walk to position";
+        this.desc = "A task of walking to a specific location";
+        this.destination = destination;
+        this.status = ITask.Status.Available;
     }
-
-    public string GetTitle()
+    public void DoTask()
     {
-        return this.title;
+        if(owner != null && destination != null)
+        {
+            var ownerTask = owner.GetComponent<WorkerAIScript>().myCurrentTask;
+            var ownerAIPath = owner.GetComponent<AIPath>();
+            if (ownerTask.status != ITask.Status.Ongoing)
+            {
+                ownerTask.status = ITask.Status.Ongoing;
+            }
+            if (ownerAIPath.destination != (Vector3)destination)
+            {
+                ownerAIPath.destination = (Vector3)destination;
+            }
+            if (ownerAIPath.canMove != true)
+            {
+                ownerAIPath.canMove = true;
+            }
+            if (ownerAIPath.reachedEndOfPath)
+            {
+                if (ownerAIPath.canMove != false)
+                {
+                    ownerAIPath.canMove = false;
+                }
+                if(ownerTask.status != ITask.Status.Completed)
+                {
+                    ownerTask.status = ITask.Status.Completed;
+                }
+            }
+        }        
     }
-
-    public string GetDescription()
-    {
-        return this.desc;
-    }
-
-    public float GetTime()
-    {
-        return this.time;
-    }
-
-    public Vector2 GetTargetPosition()
-    {
-        return this.targetPos;
-    }
-
-    public GameObject GetOwner()
-    {
-        return this.owner;
-    }
-
-    public void SetOwner(GameObject worker)
-    {
-        this.owner = worker;
-    }
-
-    public GameObject GetMachine()
-    {
-        return this.machine;
-    }
-
-    public void SetMachine(GameObject machine)
-    {
-        this.machine = machine;
-    }
-
-    public int GetPrio()
-    {
-        return this.prio;
-    }
-
-    
-    public void SetPrio(int prio)
-    {
-        this.prio = prio;
-    }
-
-    public void SetCompleted() {
-        this.completed = true;
-    }
-    
-
-
 }
