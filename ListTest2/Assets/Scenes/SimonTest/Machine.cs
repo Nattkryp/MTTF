@@ -13,85 +13,175 @@ public class Machine : MonoBehaviour
 
     //Machine Data
     [SerializeField] string _machineDescription;
+    [SerializeField] float _totTime;
+    [SerializeField] float _downTime;
+    [SerializeField] float _upTime;
+
+    //Machine condition logic variables
+    [SerializeField] float _maxCondition = 100;
+    [SerializeField] float _condition = 100;
+    [SerializeField] float _decayAmount = 0;                 //Accumulated decay
+    [SerializeField] float _decayRate = 5;
+    [SerializeField] float _conditionUpdateInterval = 1;   //seconds
+    [SerializeField] float _timerConditionUpdate = 1;       //seconds
+    [SerializeField] float _breakTryCooldown = 1;        //seconds
+    [SerializeField] float _breakTryTimer = 3;            //seconds
 
     //Functionality
     public IndicatorState indicatorLight;
 
     public AudioSource soundClick;
+    public AudioSource soundRunning;
 
 
-
-    private void Start()
-    {
-        if (GetComponent<AudioSource>() != null)
-        {
-            soundClick = GetComponent<AudioSource>();
-        }
-        else
-        {
-            Debug.LogWarning("No click sound component used");
-        }
-
-
-
-    }
 
     public void Update()
     {
-        //Visuals
+        //Events
+        if (_state == 1) {
+            ConditionChanges(); //adjust condition based on "run time" - over time decay.
+        }
+
+        OnStateChanged();
+        UpdateState();
+        _laststate = _state;
+
+        //timers
+        AccumulateTimes();
+    }
+
+    public void Repair(int x) {
+        if (_condition < _maxCondition)
+        {
+            AddCondition(x);
+
+        }
+        else 
+        {
+
+            SetOrderedState(1); //Should in future set "stopped" (2) and require "Operator" to set the machine to running (1). But this is enough for now
+        }
+    }
+
+    public void AccumulateTimes()
+    {
+        if (_state == 4)
+        {
+            _downTime += Time.deltaTime;
+        }
+        if (_state == 1)
+        {
+            _upTime += Time.deltaTime;
+        }
+        _totTime = _downTime + _upTime;
+    }
+    public void ConditionChanges()
+    {
+        //timers
+
+        _timerConditionUpdate -= Time.deltaTime;
+        _breakTryTimer -= Time.deltaTime;
+
+        //Time accumulated
+        _decayAmount += _decayRate * Time.deltaTime;
+
+
+        if (_timerConditionUpdate <= 0f)
+        {
+            _timerConditionUpdate = _conditionUpdateInterval;
+            AddCondition(-_decayAmount);
+            _decayAmount = 0;
+        }
+
+        if (_breakTryTimer <= 0f)               //Timer is out but not already broken. // <= 0f && _state != 4
+        {
+
+            _breakTryTimer = _breakTryCooldown;
+            TryBreakDown(_condition);
+            //Debug.Log("Try breakdown roll");
+        }
+        else {
+
+            return; }
+    }
+
+    void TryBreakDown(float condition)
+    {
+        float riskRoll = Random.Range(0f, 100f);
+
+
+        if (riskRoll > condition)
+        {
+            SetOrderedState(4); //broken state
+                                //play breakdown audio
+            Debug.Log("Risk roll set machine in broken state");
+        }
+        Debug.Log("Breakdown Rolled : " + riskRoll + "vs Condition: " + _condition);
+    }
+
+
+    public void UpdateState() {
+
+        //Set state = orderedStateif it haven't got a state
+        if (_state != _orderedState && _orderedState != 0)
+        {
+            SetOrderedState(_orderedState);
+        }
+
+        //Indication
+        SetLight();
 
         //Audio
+        if (_state == 1)
+        {
+            soundRunning.Play();
+            soundRunning.loop = true;
+        }
+        else
+        {
+            soundRunning.Stop();
+        }
+    }
+    void SetLight() {
+        if (_state == 1)          //started - green
+        {
+            indicatorLight.SetLight(1);
+        }
+        else if (_state == 2)          //stopped - yellow
+        {
+            indicatorLight.SetLight(2);
+        }
+        else if (_state == 3)          //service blue
+        {
+            indicatorLight.SetLight(3);
+        }
+        else if (_state == 4)          // broken - red
+        {
+            indicatorLight.SetLight(4);
 
-        //Task stuff
-
-
-        //Statestuff
-        SetState();
-        OnStateChanged();
-        _laststate = _state;
+        }
     }
     void OnStateChanged()
     {
         if (_laststate != _state)
         {
             soundClick.Play();
-            if (_state == 1)          //started - green
-            {
-                indicatorLight.SetLight(1);
-            }
-            else if (_state == 2)          //stopped - yellow
-            {
-                indicatorLight.SetLight(2);
-            }
-            else if (_state == 3)          //service blue
-            {
-                indicatorLight.SetLight(3);
-            }
-            else if (_state == 4)          // broken - red
-            {
-                indicatorLight.SetLight(4);
-            }
 
         }
     }
-    void SetState()
-    {
-        //Set state if it haven't got a state
-        if (_state != _orderedState && _orderedState != 0)
-        {
-            SetOrderedState(_orderedState);
-            Debug.Log("Machine state changed to" + _state.ToString());
-        }
-        else
-        {
-            return;
-        }
-    }
-    public void SetOrderedState(int orderedState)
+
+
+    void SetOrderedState(int orderedState)
     {
         _orderedState = 0;
         _state = orderedState;
     }
 
+    void AddCondition(float x)
+    {
+        _condition += x;
+        _condition = Mathf.Clamp(_condition, 0, _maxCondition);
 
+    }
 }
+

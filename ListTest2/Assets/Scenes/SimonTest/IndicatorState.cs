@@ -27,7 +27,7 @@ public class IndicatorState : MonoBehaviour
 
     private void Start()
     {
-        colorEmitted = GetComponent<Light2D>();
+        //colorEmitted = GetComponent<Light2D>();
         body.sprite = lights[0];
 
         lightColors = new Color[5];
@@ -47,26 +47,32 @@ public class IndicatorState : MonoBehaviour
     }
 
     public void SetLight(int lightState)
-        { if (doBlink != true) {
-            colorEmitted.intensity = 1f;
-            lightColor.sprite = lights[lightState];
-            colorEmitted.color = lightColors[lightState];
-
+        { 
+            if (doBlink != true)
+            {
+                colorEmitted.intensity = 1f;
+                lightColor.sprite = lights[lightState];
+                colorEmitted.color = lightColors[lightState];
+            }
             if (lightState == 4)
             {
                 SetFlashing();
             }
+            else {
+                ReSetFlashing();
+            }
         }
 
-        }
+
 
     public void SetFlashing() {
         doBlink = true;
-        Debug.Log("SetFlashing called");
+        //Debug.Log("SetFlashing called");
     }
 
     public void ReSetFlashing() {
         doBlink = false;
+        //Debug.Log("ResetFlashing called");
     }
     public void FlashLight()
     {
@@ -78,7 +84,7 @@ public class IndicatorState : MonoBehaviour
             blinkTimer = blinkIntervall;
             //turn light on
             colorEmitted.intensity = 5.0f;
-            Debug.Log("Blinklight on");
+            //Debug.Log("Blinklight on");
             blinked = true;
         }
         else if (blinkTimer <= 0f && doBlink && blinked)
@@ -87,7 +93,7 @@ public class IndicatorState : MonoBehaviour
             //turn light off
             colorEmitted.intensity = 0.1f;
             blinked = false;
-            Debug.Log("Blinklight off");
+            //Debug.Log("Blinklight off");
         }
     }
 }
