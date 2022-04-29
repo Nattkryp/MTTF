@@ -2640,7 +2640,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!43 &463162195
+--- !u!43 &410335642
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5392,8 +5392,8 @@ MonoBehaviour:
   - {x: -1.7867429, y: -0.6213742, z: 0}
   - {x: -1.5138692, y: -0.75781107, z: 0}
   m_ShapePathHash: -1862130280
-  m_Mesh: {fileID: 463162195}
-  m_InstanceId: 20852
+  m_Mesh: {fileID: 410335642}
+  m_InstanceId: 53274
 --- !u!212 &8433874108529513550
 SpriteRenderer:
   m_ObjectHideFlags: 0

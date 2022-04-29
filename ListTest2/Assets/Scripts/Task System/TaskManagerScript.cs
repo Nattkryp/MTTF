@@ -23,15 +23,23 @@ public class TaskManagerScript : MonoBehaviour
     private void Start()
     {
         List<Vector2> listofpositions = new List<Vector2>();
-        Vector2 pos1 = new Vector2(2, 2);
-        Vector2 pos2 = new Vector2(-2, 2);
-        Vector2 pos3 = new Vector2(-2, -2);
-        Vector2 pos4 = new Vector2(2, -2);
+        Vector2 pos1 = new Vector2(2, 0);
+        Vector2 pos2 = new Vector2(-2, 0);
+        Vector2 pos3 = new Vector2(-2, -3);
+        Vector2 pos4 = new Vector2(2, -3);
         listofpositions.Add(pos1);
         listofpositions.Add(pos2);
         listofpositions.Add(pos3);
         listofpositions.Add(pos4);
+
+        CreateTask_Patrol(1, listofpositions, 20);
+        if(GameObject.Find("Machine01"))
+        {
+            CreateTask_SetStateOnMachine(1, GameObject.Find("Machine01"), 1);
+        }
         CreateTask_Patrol(1, listofpositions, 40);
+
+
     }
 
     public void CreateTask_WalkToPosition(int priority, Vector2 destination)
@@ -45,4 +53,10 @@ public class TaskManagerScript : MonoBehaviour
         Task_Patrol newTask = new Task_Patrol(priority, destinations, seconds);
         tasks.Add(newTask);
     }
+    public void CreateTask_SetStateOnMachine(int priority, GameObject machine, int machineState)
+    {
+        Task_SetStateOnMachine newTask = new Task_SetStateOnMachine(priority, machine, machineState);
+        tasks.Add(newTask);
+    }
+
 }

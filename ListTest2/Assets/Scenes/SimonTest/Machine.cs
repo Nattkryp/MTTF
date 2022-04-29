@@ -171,7 +171,7 @@ public class Machine : MonoBehaviour
     }
 
 
-    void SetOrderedState(int orderedState)
+    public void SetOrderedState(int orderedState)
     {
         _orderedState = 0;
         _state = orderedState;

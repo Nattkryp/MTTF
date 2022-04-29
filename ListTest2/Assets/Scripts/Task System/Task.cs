@@ -155,3 +155,57 @@ public class Task_Patrol : ITask
         }
     }
 }
+
+public class Task_SetStateOnMachine : ITask
+{
+    public int priority { get; set; }
+    public string title { get; set; }
+    public string desc { get; set; }
+    public GameObject owner { get; set; }
+    public ITask.Status status { get; set; }
+    public GameObject machine { get; set; }
+    ITask.Status ITask.status { get; set; }
+    public int machineState { get; set; }
+
+    public Task_SetStateOnMachine(int priority, GameObject machine, int machineState)
+    {
+        this.priority = priority;
+        this.title = "Change state on machine";
+        this.desc = "A task of walking to a machine and changing its state";
+        this.machine = machine;
+        this.status = ITask.Status.Available;
+        this.machineState = machineState;
+    }
+    public void DoTask()
+    {
+        if (owner != null && machine != null)
+        {
+            var ownerTask = owner.GetComponent<WorkerAIScript>().myCurrentTask;
+            var ownerAIPath = owner.GetComponent<AIPath>();
+
+            if (ownerTask.status != ITask.Status.Ongoing)
+            {
+                ownerTask.status = ITask.Status.Ongoing;
+            }
+
+            Vector2 targetpos = new Vector2(machine.transform.position.x, machine.transform.position.y - 1f);//In front of.)
+            if (ownerAIPath.destination != (Vector3)targetpos)
+            {
+                ownerAIPath.destination = (Vector3)targetpos;
+            }
+            if (ownerAIPath.canMove != true)
+            {
+                ownerAIPath.canMove = true;
+            }
+
+            if (Vector2.Distance((Vector2)owner.transform.position, targetpos) <= 0.2f)
+            {
+                machine.GetComponent<Machine>().SetOrderedState(machineState);
+                if (ownerTask.status != ITask.Status.Completed)
+                {
+                    ownerTask.status = ITask.Status.Completed;
+                }
+            }
+        }
+    }
+}
