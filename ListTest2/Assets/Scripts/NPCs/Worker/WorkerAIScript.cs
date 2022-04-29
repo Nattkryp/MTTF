@@ -20,13 +20,15 @@ public class WorkerAIScript : MonoBehaviour
     {
         GetComponent<SpriteRenderer>().sortingOrder = Mathf.RoundToInt(transform.position.y * 100f) * -1;
 
-        if(myCurrentTask == null)
+        if (myCurrentTask == null)
         {
-            myCurrentTask = taskManagerScript.RequestGlobalTask(gameObject);
+            myCurrentTask = taskManagerScript.RequestTask(gameObject);
         }
         else
         {
-            if(myCurrentTask.status != ITask.Status.Completed)
+            Debug.Log("myCurrentTask: " + myCurrentTask.status);
+
+            if (myCurrentTask.status != ITask.Status.Completed)
             {
                 myCurrentTask.DoTask();
             }

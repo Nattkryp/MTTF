@@ -46,9 +46,9 @@ public class MoveTaskPanel : MonoBehaviour
     public void UpdateData()
     {
         //Check if there are tasks to populate the panel with
-        if (taskManagerScript.globalTasks.Count > 0)
+        if (taskManagerScript.tasks.Count > 0)
         {
-            foreach (ITask task in taskManagerScript.globalTasks)
+            foreach (ITask task in taskManagerScript.tasks)
             {
                 //create the rowobject which will instantiate without data
                 GameObject newRowPrefab = Instantiate(rowPrefab, transform);
@@ -58,10 +58,10 @@ public class MoveTaskPanel : MonoBehaviour
                 //update the created row's script with data from list
                 MoveTasklistRowData newRowData = newRowPrefab.GetComponent<MoveTasklistRowData>();
                 newRowData.description = task.desc;
-                if(task is TaskWalkToPosition)
+                if(task is Task_WalkToPosition)
                 {
-                    newRowData.posX = (task as TaskWalkToPosition).destination.x;
-                    newRowData.posY = (task as TaskWalkToPosition).destination.y;
+                    newRowData.posX = (task as Task_WalkToPosition).destination.x;
+                    newRowData.posY = (task as Task_WalkToPosition).destination.y;
                 }
                 else
                 {

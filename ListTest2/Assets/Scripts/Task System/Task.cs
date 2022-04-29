@@ -10,7 +10,6 @@ public interface ITask
     {
         Available,
         Ongoing,
-        OnHold,
         Completed
     }
 
@@ -23,7 +22,7 @@ public interface ITask
     void DoTask();
 }
 
-public class TaskWalkToPosition : ITask
+public class Task_WalkToPosition : ITask
 {
     public int priority { get; set; }
     public string title { get; set; }
@@ -33,7 +32,7 @@ public class TaskWalkToPosition : ITask
     public Vector2 destination { get; set; }
     ITask.Status ITask.status { get; set; }
 
-    public TaskWalkToPosition(int priority, Vector2 destination)
+    public Task_WalkToPosition(int priority, Vector2 destination)
     {
         this.priority = priority;
         this.title = "Walk to position";
@@ -47,10 +46,12 @@ public class TaskWalkToPosition : ITask
         {
             var ownerTask = owner.GetComponent<WorkerAIScript>().myCurrentTask;
             var ownerAIPath = owner.GetComponent<AIPath>();
+
             if (ownerTask.status != ITask.Status.Ongoing)
             {
                 ownerTask.status = ITask.Status.Ongoing;
             }
+            
             if (ownerAIPath.destination != (Vector3)destination)
             {
                 ownerAIPath.destination = (Vector3)destination;
@@ -61,15 +62,96 @@ public class TaskWalkToPosition : ITask
             }
             if (ownerAIPath.reachedEndOfPath)
             {
-                if (ownerAIPath.canMove != false)
+                if (ownerTask.status != ITask.Status.Completed)
                 {
-                    ownerAIPath.canMove = false;
+                    ownerTask.status = ITask.Status.Completed;
                 }
-                if(ownerTask.status != ITask.Status.Completed)
+                
+            }
+        }   
+    }
+}
+
+public class Task_Patrol : ITask
+{
+    public int priority { get; set; }
+    public string title { get; set; }
+    public string desc { get; set; }
+    public GameObject owner { get; set; }
+    public ITask.Status status { get; set; }
+    public List<Vector2> destinations { get; set; }
+    public int activeDestinationId { get; set; }
+    ITask.Status ITask.status { get; set; }
+    public float seconds { get; set; }
+
+    public Task_Patrol(int priority, List<Vector2> destinations, float seconds)
+    {
+        this.priority = priority;
+        this.title = "Patrol";
+        this.desc = "A patrol task of walking to different location within a specific time limit";
+        this.destinations = destinations;
+        this.status = ITask.Status.Available;
+        this.seconds = seconds;
+        this.activeDestinationId = -1;
+    }
+    public void DoTask()
+    {
+        if (owner != null && destinations.Count != 0)
+        {
+            var ownerTask = owner.GetComponent<WorkerAIScript>().myCurrentTask;
+            var ownerAIPath = owner.GetComponent<AIPath>();
+
+            if (ownerTask.status != ITask.Status.Ongoing)
+            {
+                ownerTask.status = ITask.Status.Ongoing;
+            }
+
+            this.seconds -= 1 * Time.deltaTime;
+            if(this.seconds > 0)
+            {
+                if(activeDestinationId == -1)//Set closest position as starting position.
+                {
+                    float closestDistance = 1000;
+                    for (int i = 0; i < destinations.Count - 1; i++)
+                    {
+                        float distance = Vector2.Distance((Vector2)owner.GetComponent<Transform>().position, destinations[i]);
+                        if (distance < closestDistance)
+                        {
+                            closestDistance = distance;
+                            activeDestinationId = i;
+                        }
+                    }
+                }
+
+                if (ownerAIPath.destination != (Vector3)destinations[activeDestinationId])
+                {
+                    ownerAIPath.destination = (Vector3)destinations[activeDestinationId];
+                }
+                if (ownerAIPath.canMove != true)
+                {
+                    ownerAIPath.canMove = true;
+                }
+
+                if (ownerAIPath.reachedEndOfPath)
+                {
+                    activeDestinationId++;
+                    if (activeDestinationId >= destinations.Count)
+                    {
+                        activeDestinationId = 0;
+                    }
+                }
+            }
+            else
+            {
+                if (ownerAIPath.destination != owner.GetComponent<Transform>().position)
+                {
+                    ownerAIPath.destination = owner.GetComponent<Transform>().position;
+                }
+                if (ownerTask.status != ITask.Status.Completed)
                 {
                     ownerTask.status = ITask.Status.Completed;
                 }
             }
-        }        
+        }
     }
 }
