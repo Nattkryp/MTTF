@@ -18,8 +18,8 @@ public class Machine : MonoBehaviour
     [SerializeField] float _upTime;
 
     //Machine condition logic variables
-    [SerializeField] float _maxCondition = 100;
-    [SerializeField] float _condition = 100;
+    [SerializeField] public float _maxCondition = 100; // Mad public so a Worker need to know what maxCondition is.
+    [SerializeField] public float _condition = 100; //Made public so a worker can know when repair is done. Done at _maxCondition.
     [SerializeField] float _decayAmount = 0;                 //Accumulated decay
     [SerializeField] float _decayRate = 5;
     [SerializeField] float _conditionUpdateInterval = 1;   //seconds
@@ -60,8 +60,8 @@ public class Machine : MonoBehaviour
         }
         else 
         {
-
-            SetOrderedState(1); //Should in future set "stopped" (2) and require "Operator" to set the machine to running (1). But this is enough for now
+            //Sets state to 1 in another task
+            //SetOrderedState(1); //Should in future set "stopped" (2) and require "Operator" to set the machine to running (1). But this is enough for now
         }
     }
 
@@ -117,6 +117,8 @@ public class Machine : MonoBehaviour
             SetOrderedState(4); //broken state
                                 //play breakdown audio
             Debug.Log("Risk roll set machine in broken state");
+
+            GameObject.Find("TaskManager").GetComponent<TaskManagerScript>().CreateTask_RepairMachine(1, gameObject);// Added this at this way temporary! FOR TEST!
         }
         Debug.Log("Breakdown Rolled : " + riskRoll + "vs Condition: " + _condition);
     }
