@@ -150,6 +150,7 @@ public class Task_Patrol : ITask
                 if (ownerTask.status != ITask.Status.Completed)
                 {
                     ownerTask.status = ITask.Status.Completed;
+                    activeDestinationId = -1;
                 }
             }
         }
@@ -166,6 +167,7 @@ public class Task_SetStateOnMachine : ITask
     public GameObject machine { get; set; }
     ITask.Status ITask.status { get; set; }
     public int machineState { get; set; }
+    public float clickingtime { get; set; }
 
     public Task_SetStateOnMachine(int priority, GameObject machine, int machineState)
     {
@@ -175,6 +177,7 @@ public class Task_SetStateOnMachine : ITask
         this.machine = machine;
         this.status = ITask.Status.Available;
         this.machineState = machineState;
+        this.clickingtime = 1;
     }
     public void DoTask()
     {
@@ -188,7 +191,7 @@ public class Task_SetStateOnMachine : ITask
                 ownerTask.status = ITask.Status.Ongoing;
             }
 
-            Vector2 targetpos = new Vector2(machine.transform.position.x, machine.transform.position.y - 1f);//In front of.)
+            Vector2 targetpos = new Vector2(machine.transform.position.x -0.5f, machine.transform.position.y - 0.5f);//In front of.)
             if (ownerAIPath.destination != (Vector3)targetpos)
             {
                 ownerAIPath.destination = (Vector3)targetpos;
@@ -200,10 +203,121 @@ public class Task_SetStateOnMachine : ITask
 
             if (Vector2.Distance((Vector2)owner.transform.position, targetpos) <= 0.2f)
             {
-                machine.GetComponent<Machine>().SetOrderedState(machineState);
-                if (ownerTask.status != ITask.Status.Completed)
+                if (ownerAIPath.destination != owner.transform.position)
                 {
-                    ownerTask.status = ITask.Status.Completed;
+                    ownerAIPath.destination = owner.transform.position;
+                }
+
+                this.clickingtime -= 1 * Time.deltaTime;
+
+                if(clickingtime <= 0)
+                {
+                    machine.GetComponent<Machine>().SetOrderedState(machineState);
+                    if (ownerTask.status != ITask.Status.Completed)
+                    {
+                        ownerTask.status = ITask.Status.Completed;
+                    }
+                }
+            }
+        }
+    }
+}
+
+public class Task_RepairMachine : ITask
+{
+    public int priority { get; set; }
+    public string title { get; set; }
+    public string desc { get; set; }
+    public GameObject owner { get; set; }
+    public ITask.Status status { get; set; }
+    public GameObject machine { get; set; }
+    ITask.Status ITask.status { get; set; }
+    public float timeOnEachPosition { get; set; }
+    public float timeOnEachPositionCounter { get; set; }
+    public List<Vector2> destinations { get; set; }
+    public Vector2 targetPos { get; set; }
+    public bool repairOnEachPos { get; set; }
+
+    public Task_RepairMachine(int priority, GameObject machine)
+    {
+        this.priority = priority;
+        this.title = "Repair machine";
+        this.desc = "A task of walking to a machine and repairing it";
+        this.machine = machine;
+        this.status = ITask.Status.Available;
+        this.timeOnEachPosition = 3;//3 seconds on each position now.
+        this.timeOnEachPositionCounter = 0;
+    }
+    public void DoTask()
+    {
+        if (owner != null && machine != null)
+        {
+            var ownerTask = owner.GetComponent<WorkerAIScript>().myCurrentTask;
+            var ownerAIPath = owner.GetComponent<AIPath>();
+
+            if (ownerTask.status != ITask.Status.Ongoing)
+            {
+                ownerTask.status = ITask.Status.Ongoing;
+            }
+
+            Vector2 targetPosFront = new Vector2(machine.transform.position.x, machine.transform.position.y - 0.5f);
+            Vector2 targetPosLeft = new Vector2(machine.transform.position.x - 2f, machine.transform.position.y);
+            Vector2 targetPosBack = new Vector2(machine.transform.position.x, machine.transform.position.y + 1.5f);
+            Vector2 targetPosRight = new Vector2(machine.transform.position.x + 2f, machine.transform.position.y);
+
+            timeOnEachPositionCounter -= 1 * Time.deltaTime;
+            if(timeOnEachPositionCounter <= 0)
+            {
+                repairOnEachPos = true;
+                timeOnEachPositionCounter = timeOnEachPosition;
+                if(targetPos == targetPosFront)
+                {
+                    targetPos = targetPosLeft;
+                }
+                else if (targetPos == targetPosLeft)
+                {
+                    targetPos = targetPosBack;
+                }
+                else if (targetPos == targetPosBack)
+                {
+                    targetPos = targetPosRight;
+                }
+                else
+                {
+                    targetPos = targetPosFront;
+                }
+            }
+
+            if (ownerAIPath.destination != (Vector3)targetPos)
+            {
+                ownerAIPath.destination = (Vector3)targetPos;
+            }
+            if (ownerAIPath.canMove != true)
+            {
+                ownerAIPath.canMove = true;
+            }
+
+            if (Vector2.Distance((Vector2)owner.transform.position, targetPos) <= 0.2f)
+            {
+                if (ownerAIPath.destination != owner.transform.position)
+                {
+                    ownerAIPath.destination = owner.transform.position;
+                }
+
+                if(repairOnEachPos == true)
+                {
+                    machine.GetComponent<Machine>().Repair(2);
+                    repairOnEachPos = false;
+                    Debug.Log("Repair by 2");
+                }
+
+                if (machine.GetComponent<Machine>()._condition == machine.GetComponent<Machine>()._maxCondition)
+                {
+                    if (ownerTask.status != ITask.Status.Completed)
+                    {
+                        machine.GetComponent<Machine>().SetOrderedState(1);//JUST START MACHINE AFTER REPAIR! TEMPORARY
+                        ownerTask.status = ITask.Status.Completed;
+                    }
                 }
             }
         }

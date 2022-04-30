@@ -32,14 +32,11 @@ public class TaskManagerScript : MonoBehaviour
         listofpositions.Add(pos3);
         listofpositions.Add(pos4);
 
-        CreateTask_Patrol(1, listofpositions, 20);
         if(GameObject.Find("Machine01"))
         {
             CreateTask_SetStateOnMachine(1, GameObject.Find("Machine01"), 1);
         }
-        CreateTask_Patrol(1, listofpositions, 40);
-
-
+        CreateTask_WalkToPosition(1, new Vector2(0, 0));
     }
 
     public void CreateTask_WalkToPosition(int priority, Vector2 destination)
@@ -59,4 +56,9 @@ public class TaskManagerScript : MonoBehaviour
         tasks.Add(newTask);
     }
 
+    public void CreateTask_RepairMachine(int priority, GameObject machine)
+    {
+        Task_RepairMachine newTask = new Task_RepairMachine(priority, machine);
+        tasks.Add(newTask);
+    }
 }
