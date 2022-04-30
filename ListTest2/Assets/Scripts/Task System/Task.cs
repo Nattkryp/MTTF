@@ -150,6 +150,7 @@ public class Task_Patrol : ITask
                 if (ownerTask.status != ITask.Status.Completed)
                 {
                     ownerTask.status = ITask.Status.Completed;
+                    activeDestinationId = -1;
                 }
             }
         }
@@ -166,6 +167,7 @@ public class Task_SetStateOnMachine : ITask
     public GameObject machine { get; set; }
     ITask.Status ITask.status { get; set; }
     public int machineState { get; set; }
+    public float clickingtime { get; set; }
 
     public Task_SetStateOnMachine(int priority, GameObject machine, int machineState)
     {
@@ -175,6 +177,7 @@ public class Task_SetStateOnMachine : ITask
         this.machine = machine;
         this.status = ITask.Status.Available;
         this.machineState = machineState;
+        this.clickingtime = 1;
     }
     public void DoTask()
     {
@@ -188,7 +191,7 @@ public class Task_SetStateOnMachine : ITask
                 ownerTask.status = ITask.Status.Ongoing;
             }
 
-            Vector2 targetpos = new Vector2(machine.transform.position.x, machine.transform.position.y - 1f);//In front of.)
+            Vector2 targetpos = new Vector2(machine.transform.position.x, machine.transform.position.y - 0.2f);//In front of.)
             if (ownerAIPath.destination != (Vector3)targetpos)
             {
                 ownerAIPath.destination = (Vector3)targetpos;
@@ -200,10 +203,20 @@ public class Task_SetStateOnMachine : ITask
 
             if (Vector2.Distance((Vector2)owner.transform.position, targetpos) <= 0.2f)
             {
-                machine.GetComponent<Machine>().SetOrderedState(machineState);
-                if (ownerTask.status != ITask.Status.Completed)
+                if (ownerAIPath.destination != owner.transform.position)
                 {
-                    ownerTask.status = ITask.Status.Completed;
+                    ownerAIPath.destination = owner.transform.position;
+                }
+
+                this.clickingtime -= 1 * Time.deltaTime;
+
+                if(clickingtime <= 0)
+                {
+                    machine.GetComponent<Machine>().SetOrderedState(machineState);
+                    if (ownerTask.status != ITask.Status.Completed)
+                    {
+                        ownerTask.status = ITask.Status.Completed;
+                    }
                 }
             }
         }

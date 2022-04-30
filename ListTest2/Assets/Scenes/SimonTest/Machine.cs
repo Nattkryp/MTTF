@@ -37,6 +37,8 @@ public class Machine : MonoBehaviour
 
     public void Update()
     {
+        GetComponent<SpriteRenderer>().sortingOrder = Mathf.RoundToInt(transform.position.y * 100f) * -1;
+
         //Events
         if (_state == 1) {
             ConditionChanges(); //adjust condition based on "run time" - over time decay.
