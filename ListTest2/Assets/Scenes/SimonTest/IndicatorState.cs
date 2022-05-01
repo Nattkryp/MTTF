@@ -12,12 +12,14 @@ public class IndicatorState : MonoBehaviour
     public SpriteRenderer lightColor;
     public Sprite[] lights;
     public Color[] lightColors;
+    public float[] lightsIntensity;
     public Light2D colorEmitted;        //works even if it doesn't seem to
     public float lightIntensity = 1f;
     public float blinkTimer;
     float blinkIntervall = 1f;          //seconds
     public bool doBlink;
     public bool blinked;
+    public int _lightState = 0;
 
     //Sprite indicatorBody;
     //Sprite greenLight;
@@ -37,31 +39,53 @@ public class IndicatorState : MonoBehaviour
         lightColors[3] = Color.blue;        //service - blue
         lightColors[4] = Color.red;         //broken - red
 
+        lightsIntensity = new float[5];
+        lightsIntensity[0] = 2;
+        lightsIntensity[1] = 1;
+        lightsIntensity[2] = 1;
+        lightsIntensity[3] = 1;
+        lightsIntensity[4] = 1;
+
         SetLight(2);
     }
 
     private void Update()
     {
-
+        
         FlashLight();
     }
 
-    public void SetLight(int lightState)
-        { 
+    public void SetLight(int lightState)    //use state as index for specific state indicator light parameters.
+    {
+        _lightState = lightState;
+        lightColor.sprite = lights[lightState];
+        colorEmitted.color = lightColors[lightState];
+        colorEmitted.intensity = lightsIntensity[lightState];
+        Debug.Log("Set lightIntensity to: " + lightState);
+
+
+        Debug.Log("trying to set lights to: " + lightState);
+
+        if (lightState != 1)
+        {
             if (doBlink != true)
             {
                 colorEmitted.intensity = 1f;
-                lightColor.sprite = lights[lightState];
-                colorEmitted.color = lightColors[lightState];
+
             }
+
             if (lightState == 4)
             {
                 SetFlashing();
             }
-            else {
-                ReSetFlashing();
-            }
+
+
         }
+        else {
+            ReSetFlashing();
+        }
+
+    }
 
 
 
@@ -81,18 +105,20 @@ public class IndicatorState : MonoBehaviour
 
         if (blinkTimer <= 0f && doBlink && !blinked)
         {
+            blinked = true;
             blinkTimer = blinkIntervall;
             //turn light on
-            colorEmitted.intensity = 5.0f;
+            //colorEmitted.intensity = 5.0f;
             //Debug.Log("Blinklight on");
-            blinked = true;
+            
         }
         else if (blinkTimer <= 0f && doBlink && blinked)
         {
+            blinked = false;
             blinkTimer = blinkIntervall;
             //turn light off
             colorEmitted.intensity = 0.1f;
-            blinked = false;
+            
             //Debug.Log("Blinklight off");
         }
     }

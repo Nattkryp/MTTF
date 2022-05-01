@@ -36,7 +36,6 @@ public class WorkerAIScript : MonoBehaviour
             {
                 myCurrentTask = null;
             }
-
         }
     }
 }
