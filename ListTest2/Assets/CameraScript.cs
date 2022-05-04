@@ -1,22 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CameraScript : MonoBehaviour
 {
     Camera cam;
+    public Text gameSpeed;
     public float baseScrollSpeed = 4f;
 
     private void Start()
     {
         cam= GetComponent<Camera>();
+        
     }
 
-    
+    public void SetGameSpeed(int x) {
+    Time.timeScale = x;
+    }
 
     void Update()
     {
         CameraMovement();
+        gameSpeed.text = Time.timeScale.ToString() + "x";
 
     }
 

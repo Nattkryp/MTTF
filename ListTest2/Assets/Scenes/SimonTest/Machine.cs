@@ -76,13 +76,13 @@ public class Machine : MonoBehaviour
     }
     public void ApplyOrderedState(int orderedState) {
         _state = orderedState;
-        Debug.Log("SetOrderedState ran");
+        //Debug.Log("SetOrderedState ran");
     }
 
     public void SetOrderedState(int orderedState)
     {
         _orderedState = orderedState;
-        Debug.Log("SetOrderedState ran");
+        //Debug.Log("SetOrderedState ran");
     }
 
     public void AddCondition(float x)
@@ -162,7 +162,7 @@ public class Machine : MonoBehaviour
         
         if (_laststate != _state)
         {
-            Debug.Log("OnStateChanged ran");
+            //Debug.Log("OnStateChanged ran");
             SetLight();
             soundClick.Play();
             if (_state == 1)
@@ -183,11 +183,11 @@ public class Machine : MonoBehaviour
     }
     void UpdateState()
     {
-        Debug.Log("UpdateState ran");
+        
         //Set state = orderedState if it haven't got a state
         if (_state != _orderedState && _orderedState != 0)
         {
-            Debug.Log("UpdateState tries to run SetorderedState since state is" + _state.ToString() + "and _orderedState is:" + _orderedState.ToString());
+            //Debug.Log("UpdateState tries to run SetorderedState since state is" + _state.ToString() + "and _orderedState is:" + _orderedState.ToString());
             ApplyOrderedState(_orderedState);
             OnStateChanged();
         }

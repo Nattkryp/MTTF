@@ -8,15 +8,25 @@ public class WorkerAIScript : MonoBehaviour
     TaskManagerScript taskManagerScript;
     SpriteRenderer spriteRenderer;
     public Animator animator;
+    public AudioSource audioSource;
 
     public AIPath aiPath;
     public GameObject indicatorPrefab;
     public ITask myCurrentTask;
+    float waitToAskForTaskTime = 10f;       //The time set to reset the timer
+    float waitToAskForTaskTimer;            //The actual countdown number of the timer
+
+
+
     public float testMoveSpeed = 5;
+    public float movedDistance;
     
     //animation testing (temporary worker livecontrol - comment/uncomment //Manage task as needed)
     public bool isMoving;
+    public Vector2 lastPos;
     public bool isInteracting;
+
+    
 
     public void Start()
     {
@@ -27,9 +37,39 @@ public class WorkerAIScript : MonoBehaviour
 
     public void Update()
     {
+
+
+
+        if (transform.hasChanged)
+        {
+            Debug.Log("is moving");
+            isMoving = true;
+            transform.hasChanged = false;
+        }
+        else
+        {
+            isMoving = false;
+            Debug.Log("isn't moving");
+        }
+
+        if (isMoving)
+        {
+            if (!audioSource.isPlaying)
+
+            {
+                audioSource.pitch = Time.timeScale;
+                audioSource.Play();
+            }
+        }
+        else {
+        audioSource.Stop();
+        }
+
+
         TestStuff();
         Gfx();
-        //ManageTask();
+        ManageTask();
+        
     }
 
     public void TestStuff() {
@@ -43,25 +83,25 @@ public class WorkerAIScript : MonoBehaviour
         if (Input.GetKey(KeyCode.LeftArrow))
         {
             transform.position = new Vector3(transform.position.x + -testMoveSpeed * Time.deltaTime, transform.position.y, transform.position.z);
-            isMoving = true;
+           // isMoving = true;
         }
         else if (Input.GetKey(KeyCode.RightArrow))
         {
             transform.position = new Vector3(transform.position.x + testMoveSpeed * Time.deltaTime, transform.position.y, transform.position.z);
-            isMoving = true;
+          //  isMoving = true;
         }
         else if (Input.GetKey(KeyCode.UpArrow))
         {
             transform.position = new Vector3(transform.position.x, transform.position.y + testMoveSpeed * Time.deltaTime, transform.position.z);
-            isMoving = true;
+          //  isMoving = true;
         }
         else if (Input.GetKey(KeyCode.DownArrow))
         {
             transform.position = new Vector3(transform.position.x, transform.position.y + -testMoveSpeed * Time.deltaTime, transform.position.z);
-            isMoving = true;
+          //  isMoving = true;
         }
         else {
-            isMoving = false;
+          //  isMoving = false;
         }
     }
     public void PlayerAITestInteract()
@@ -77,10 +117,16 @@ public class WorkerAIScript : MonoBehaviour
     }
 
     public void ManageTask() {
+
         if (myCurrentTask == null)
         {
-            myCurrentTask = taskManagerScript.RequestTask(gameObject);
+            waitToAskForTaskTimer -= Time.deltaTime;
+            if (myCurrentTask == null && waitToAskForTaskTimer <= 0f)
+            {
+                myCurrentTask = taskManagerScript.RequestTask(gameObject);
+            }
         }
+
         else
         {
             Debug.Log("myCurrentTask: " + myCurrentTask.status);
@@ -92,6 +138,7 @@ public class WorkerAIScript : MonoBehaviour
             else
             {
                 myCurrentTask = null;
+                waitToAskForTaskTimer = waitToAskForTaskTime;
             }
         }
     }
