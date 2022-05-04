@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 9191311767336465152}
   - component: {fileID: 9191311768010071803}
   - component: {fileID: 9191311768010071804}
-  - component: {fileID: 9191311768010071805}
   - component: {fileID: -2511457229317468942}
   - component: {fileID: -1221220503195443139}
   - component: {fileID: -1295405408232440753}
@@ -101,25 +100,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   aiPath: {fileID: 0}
   indicatorPrefab: {fileID: 2037117968635153840, guid: 55761bcf9e99df44da68c39d3fed1e1f, type: 3}
---- !u!95 &9191311768010071805
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9191311768010071792}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: f340b9a3069855448b043ca4efe1acfe, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!114 &-2511457229317468942
 MonoBehaviour:
   m_ObjectHideFlags: 0

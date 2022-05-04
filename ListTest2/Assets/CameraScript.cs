@@ -11,12 +11,21 @@ public class CameraScript : MonoBehaviour
     {
         cam= GetComponent<Camera>();
     }
+
+    
+
     void Update()
     {
+        CameraMovement();
+
+    }
+
+    public void CameraMovement()
+    {
         //Camera Movement
-        if(Input.GetKey(KeyCode.A))
+        if (Input.GetKey(KeyCode.A))
         {
-            transform.position = new Vector3(transform.position.x + -baseScrollSpeed * Time.deltaTime, transform.position.y,transform.position.z);
+            transform.position = new Vector3(transform.position.x + -baseScrollSpeed * Time.deltaTime, transform.position.y, transform.position.z);
         }
 
         if (Input.GetKey(KeyCode.D))
@@ -35,11 +44,11 @@ public class CameraScript : MonoBehaviour
         //Camera Zoom
         if (Input.GetKey(KeyCode.Z))
         {
-            cam.orthographicSize = cam.orthographicSize + 10 * baseScrollSpeed/0.67f * Time.deltaTime;
+            cam.orthographicSize = cam.orthographicSize + 10 * baseScrollSpeed / 0.67f * Time.deltaTime;
         }
         if (Input.GetKey(KeyCode.C))
         {
-            cam.orthographicSize = cam.orthographicSize - 10 * baseScrollSpeed/0.67f * Time.deltaTime;
+            cam.orthographicSize = cam.orthographicSize - 10 * baseScrollSpeed / 0.67f * Time.deltaTime;
             cam.orthographicSize = Mathf.Clamp(cam.orthographicSize, 0.2f, 30f);
         }
 
@@ -50,15 +59,14 @@ public class CameraScript : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.KeypadMinus))
         {
-            if(Time.timeScale > 0)
+            if (Time.timeScale > 0)
             {
                 Time.timeScale -= 0.5f;
             }
         }
-        if(Input.GetKeyDown(KeyCode.KeypadMultiply))
+        if (Input.GetKeyDown(KeyCode.KeypadMultiply))
         {
             Time.timeScale = 1.0f;
         }
-
     }
 }
