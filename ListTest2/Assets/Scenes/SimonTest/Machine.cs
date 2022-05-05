@@ -76,6 +76,7 @@ public class Machine : MonoBehaviour
     }
     public void ApplyOrderedState(int orderedState) {
         _state = orderedState;
+        _orderedState = 0;
         //Debug.Log("SetOrderedState ran");
     }
 

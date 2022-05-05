@@ -5,40 +5,93 @@ using Pathfinding;
 
 public class WorkerAIScript : MonoBehaviour
 {
+
     TaskManagerScript taskManagerScript;
     SpriteRenderer spriteRenderer;
-    public Animator animator;
-    public AudioSource audioSource;
-
-    public AIPath aiPath;
-    public GameObject indicatorPrefab;
-    public ITask myCurrentTask;
-    float waitToAskForTaskTime = 10f;       //The time set to reset the timer
-    float waitToAskForTaskTimer;            //The actual countdown number of the timer
-
-
-
-    public float testMoveSpeed = 5;
-    public float movedDistance;
+    Animator animator;
+    AudioSource audioSource;
+    public GameObject tool;
     
-    //animation testing (temporary worker livecontrol - comment/uncomment //Manage task as needed)
+
+    //Task
+    public string myCurrentTaskType;
+    public ITask myCurrentTask;
+    float waitToAskForTaskTimeMin = 2;       //The time set to reset the timer
+    float waitToAskForTaskTimeMax = 10;            //The actual countdown number of the timer
+    float waitToAskForTaskTimer = 5;
+
+
+    //Movement
     public bool isMoving;
     public Vector2 lastPos;
-    public bool isInteracting;
+    public bool isInteracting = false;
+    float maxSpeed = 4;                        //on aiPath
+    AIPath aiPath;
 
-    
+    //animation
+
+    public void SetIsInteracting(bool interacting) {
+    isInteracting = interacting;
+    }
 
     public void Start()
     {
-        aiPath = GetComponent<AIPath>();
+
         taskManagerScript = GameObject.Find("TaskManager").GetComponent<TaskManagerScript>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
+        audioSource.Stop();
+        audioSource.loop = false;
+        aiPath = GetComponent<AIPath>();
+        aiPath.maxSpeed = maxSpeed;
     }
 
     public void Update()
     {
+        GetComponent<SpriteRenderer>().sortingOrder = Mathf.RoundToInt(transform.position.y * 100f) * -1;
+        CheckIfMoving();
+        DoWhileMoving();
+        TestStuff();
+        ManageTask();
+    }
 
+    public void SetMoveSpeed(float speed) {
+    maxSpeed = speed;
+    }
 
+    public void TestStuff() {
+        //PlayerAITestInteract();
+    }
+
+    public bool GetIsMoving(bool x) {
+        x = isMoving;
+        
+        return x;
+    }
+
+    public void DoWhileMoving()
+    {
+        UpdateGfx();
+        UpdateSound();
+    }
+
+    public void UpdateSound()
+    {
+        if (isMoving)
+        {
+            
+            if (!audioSource.isPlaying)
+
+            {
+                audioSource.pitch = Time.timeScale;
+                audioSource.Play();
+
+            }
+        }
+    }
+
+    public void CheckIfMoving() {
 
         if (transform.hasChanged)
         {
@@ -52,74 +105,27 @@ public class WorkerAIScript : MonoBehaviour
             Debug.Log("isn't moving");
         }
 
-        if (isMoving)
-        {
-            if (!audioSource.isPlaying)
-
-            {
-                audioSource.pitch = Time.timeScale;
-                audioSource.Play();
-            }
-        }
-        else {
-        audioSource.Stop();
-        }
-
-
-        TestStuff();
-        Gfx();
-        ManageTask();
-        
     }
 
-    public void TestStuff() {
-        PlayerAITestMove();
-        PlayerAITestInteract();
-    }
+    //public void PlayerAITestInteract()
+    //{
+    //    if (Input.GetKey(KeyCode.Space))
+    //    {
+    //        isInteracting = true;
+    //    }
 
-    public void PlayerAITestMove()
-    {
-        //Camera Movement
-        if (Input.GetKey(KeyCode.LeftArrow))
-        {
-            transform.position = new Vector3(transform.position.x + -testMoveSpeed * Time.deltaTime, transform.position.y, transform.position.z);
-           // isMoving = true;
-        }
-        else if (Input.GetKey(KeyCode.RightArrow))
-        {
-            transform.position = new Vector3(transform.position.x + testMoveSpeed * Time.deltaTime, transform.position.y, transform.position.z);
-          //  isMoving = true;
-        }
-        else if (Input.GetKey(KeyCode.UpArrow))
-        {
-            transform.position = new Vector3(transform.position.x, transform.position.y + testMoveSpeed * Time.deltaTime, transform.position.z);
-          //  isMoving = true;
-        }
-        else if (Input.GetKey(KeyCode.DownArrow))
-        {
-            transform.position = new Vector3(transform.position.x, transform.position.y + -testMoveSpeed * Time.deltaTime, transform.position.z);
-          //  isMoving = true;
-        }
-        else {
-          //  isMoving = false;
-        }
-    }
-    public void PlayerAITestInteract()
-    {
-        if (Input.GetKey(KeyCode.Space)) {
-            isInteracting = true;
-        }
-
-        else
-        {
-            isInteracting = false;
-        }
-    }
+    //    else
+    //    {
+    //        isInteracting = false;
+    //    }
+    //}
 
     public void ManageTask() {
 
         if (myCurrentTask == null)
         {
+            myCurrentTaskType = "No current Task";
+
             waitToAskForTaskTimer -= Time.deltaTime;
             if (myCurrentTask == null && waitToAskForTaskTimer <= 0f)
             {
@@ -129,7 +135,8 @@ public class WorkerAIScript : MonoBehaviour
 
         else
         {
-            Debug.Log("myCurrentTask: " + myCurrentTask.status);
+            myCurrentTaskType = myCurrentTask.desc;
+            //Debug.Log("myCurrentTask: " + myCurrentTask.status);
 
             if (myCurrentTask.status != ITask.Status.Completed)
             {
@@ -138,12 +145,13 @@ public class WorkerAIScript : MonoBehaviour
             else
             {
                 myCurrentTask = null;
-                waitToAskForTaskTimer = waitToAskForTaskTime;
+                waitToAskForTaskTimer = Random.Range(waitToAskForTaskTimeMin, waitToAskForTaskTimeMax);
+                animator.Play("note-OK");
             }
         }
     }
 
-    public void Gfx() {
+    public void UpdateGfx() {
         spriteRenderer.sortingOrder = Mathf.RoundToInt(transform.position.y * 100f) * -1;
 
 

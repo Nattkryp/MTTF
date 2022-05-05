@@ -20,23 +20,33 @@ public class TaskManagerScript : MonoBehaviour
             return null;
     }
 
+
+
     private void Start()
     {
         List<Vector2> listofpositions = new List<Vector2>();
-        Vector2 pos1 = new Vector2(2, 0);
-        Vector2 pos2 = new Vector2(-2, 0);
-        Vector2 pos3 = new Vector2(-2, -3);
-        Vector2 pos4 = new Vector2(2, -3);
+        Vector2 pos1 = new Vector2(Random.Range(-25, 25),0);
+        Vector2 pos2 = new Vector2(Random.Range(-25, 25), 0);
+        Vector2 pos3 = new Vector2(Random.Range(-25, 25), 0);
+        Vector2 pos4 = new Vector2(Random.Range(-25, 25), 0);
         listofpositions.Add(pos1);
         listofpositions.Add(pos2);
         listofpositions.Add(pos3);
         listofpositions.Add(pos4);
 
-        if(GameObject.Find("Machine01"))
+        GameObject firstTarget;
+        firstTarget = GameObject.FindGameObjectWithTag("Machine");
+        if (firstTarget !=null)
         {
-            CreateTask_SetStateOnMachine(1, GameObject.Find("Machine01"), 1);
+            Debug.Log("Starting: I found a machine to set to running!");
+            CreateTask_SetStateOnMachine(1, firstTarget,1);
         }
-        CreateTask_WalkToPosition(1, new Vector2(0, 0));
+        else
+        {
+            Debug.Log("Starting: didn't find a machine to start up - going to a default position");
+            CreateTask_WalkToPosition(1, new Vector2(0, 0));
+        }
+        
     }
 
     public void CreateTask_WalkToPosition(int priority, Vector2 destination)

@@ -42,7 +42,7 @@ public class Task_WalkToPosition : ITask
     }
     public void DoTask()
     {
-        if(owner != null && destination != null)
+        if (owner != null && destination != null)
         {
             var ownerTask = owner.GetComponent<WorkerAIScript>().myCurrentTask;
             var ownerAIPath = owner.GetComponent<AIPath>();
@@ -51,7 +51,7 @@ public class Task_WalkToPosition : ITask
             {
                 ownerTask.status = ITask.Status.Ongoing;
             }
-            
+
             if (ownerAIPath.destination != (Vector3)destination)
             {
                 ownerAIPath.destination = (Vector3)destination;
@@ -66,9 +66,9 @@ public class Task_WalkToPosition : ITask
                 {
                     ownerTask.status = ITask.Status.Completed;
                 }
-                
+
             }
-        }   
+        }
     }
 }
 
@@ -107,9 +107,9 @@ public class Task_Patrol : ITask
             }
 
             this.seconds -= 1 * Time.deltaTime;
-            if(this.seconds > 0)
+            if (this.seconds > 0)
             {
-                if(activeDestinationId == -1)//Set closest position as starting position.
+                if (activeDestinationId == -1)//Set closest position as starting position.
                 {
                     float closestDistance = 1000;
                     for (int i = 0; i < destinations.Count - 1; i++)
@@ -191,7 +191,7 @@ public class Task_SetStateOnMachine : ITask
                 ownerTask.status = ITask.Status.Ongoing;
             }
 
-            Vector2 targetpos = new Vector2(machine.transform.position.x -0.5f, machine.transform.position.y - 0.5f);//In front of.)
+            Vector2 targetpos = new Vector2(machine.transform.position.x - 0.5f, machine.transform.position.y - 0.5f);//In front of.)
             if (ownerAIPath.destination != (Vector3)targetpos)
             {
                 ownerAIPath.destination = (Vector3)targetpos;
@@ -210,7 +210,7 @@ public class Task_SetStateOnMachine : ITask
 
                 this.clickingtime -= 1 * Time.deltaTime;
 
-                if(clickingtime <= 0)
+                if (clickingtime <= 0)
                 {
                     machine.GetComponent<Machine>().SetOrderedState(machineState);
                     if (ownerTask.status != ITask.Status.Completed)
@@ -266,25 +266,44 @@ public class Task_RepairMachine : ITask
             Vector2 targetPosRight = new Vector2(machine.transform.position.x + 2f, machine.transform.position.y);
 
             timeOnEachPositionCounter -= 1 * Time.deltaTime;
-            if(timeOnEachPositionCounter <= 0)
+            if (timeOnEachPositionCounter <= 0)
             {
+
                 repairOnEachPos = true;
                 timeOnEachPositionCounter = timeOnEachPosition;
-                if(targetPos == targetPosFront)
+                if (targetPos == targetPosFront)
                 {
+                    owner.GetComponent<WorkerAIScript>().SetIsInteracting(false);
                     targetPos = targetPosLeft;
+                
                 }
                 else if (targetPos == targetPosLeft)
                 {
+                    owner.GetComponent<WorkerAIScript>().SetIsInteracting(false);
                     targetPos = targetPosBack;
+                    
                 }
                 else if (targetPos == targetPosBack)
                 {
+                    owner.GetComponent<WorkerAIScript>().SetIsInteracting(false);
                     targetPos = targetPosRight;
+                    
                 }
                 else
                 {
+                    owner.GetComponent<WorkerAIScript>().SetIsInteracting(false);
                     targetPos = targetPosFront;
+                    
+                }
+            }
+            else 
+            {
+                if (Vector2.Distance((Vector2)owner.transform.position, targetPos) <= 0.2f) {
+                    owner.GetComponent<WorkerAIScript>().SetIsInteracting(true);
+                    if (owner.transform.GetChild(0).GetComponent<AudioSource>().isPlaying != true)
+                    {
+                        owner.transform.GetChild(0).GetComponent<AudioSource>().Play();
+                    }
                 }
             }
 
@@ -304,8 +323,9 @@ public class Task_RepairMachine : ITask
                     ownerAIPath.destination = owner.transform.position;
                 }
 
-                if(repairOnEachPos == true)
+                if (repairOnEachPos == true)
                 {
+                    
                     machine.GetComponent<Machine>().Repair(2);
                     repairOnEachPos = false;
                     Debug.Log("Repair by 2");
@@ -315,6 +335,7 @@ public class Task_RepairMachine : ITask
                 {
                     if (ownerTask.status != ITask.Status.Completed)
                     {
+                        owner.GetComponent<WorkerAIScript>().SetIsInteracting(false); //Set false just in case it hasn't stopped yet
                         machine.GetComponent<Machine>().SetOrderedState(1);//JUST START MACHINE AFTER REPAIR! TEMPORARY
                         ownerTask.status = ITask.Status.Completed;
                     }
