@@ -25,7 +25,7 @@ public class WorkerAIScript : MonoBehaviour
     public bool isMoving;
     public Vector2 lastPos;
     public bool isInteracting = false;
-    float maxSpeed = 4;                        //on aiPath
+    float maxSpeed = 2;                        //on aiPath
     AIPath aiPath;
 
     //Needs

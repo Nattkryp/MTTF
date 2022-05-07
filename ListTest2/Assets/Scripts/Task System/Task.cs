@@ -245,7 +245,7 @@ public class Task_RepairMachine : ITask
         this.desc = "A task of walking to a machine and repairing it";
         this.machine = machine;
         this.status = ITask.Status.Available;
-        this.timeOnEachPosition = 3;//3 seconds on each position now.
+        this.timeOnEachPosition = 4;//4 seconds on each position now.
         this.timeOnEachPositionCounter = 0;
     }
     public void DoTask()
@@ -336,7 +336,7 @@ public class Task_RepairMachine : ITask
                     if (ownerTask.status != ITask.Status.Completed)
                     {
                         owner.GetComponent<WorkerAIScript>().SetIsInteracting(false); //Set false just in case it hasn't stopped yet
-                        machine.GetComponent<Machine>().SetOrderedState(1);//JUST START MACHINE AFTER REPAIR! TEMPORARY
+                        machine.GetComponent<Machine>().SetOrderedState(2);//JUST START MACHINE AFTER REPAIR! TEMPORARY
                         ownerTask.status = ITask.Status.Completed;
                     }
                 }

@@ -182,7 +182,7 @@ public class Machine : MonoBehaviour
         indicatorLight.SetLight(_state);
 
     }
-    void UpdateState()
+    public void UpdateState()
     {
         
         //Set state = orderedState if it haven't got a state
