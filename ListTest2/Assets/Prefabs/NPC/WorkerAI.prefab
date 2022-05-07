@@ -87,7 +87,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -231,6 +231,7 @@ MonoBehaviour:
   isMoving: 0
   lastPos: {x: 0, y: 0}
   isInteracting: 0
+  energyCurr: 0
 --- !u!114 &-2511457229317468942
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -9,7 +9,7 @@ public class WorkerAIScript : MonoBehaviour
     TaskManagerScript taskManagerScript;
     SpriteRenderer spriteRenderer;
     Animator animator;
-    AudioSource audioSource;
+    WorkerAudio sounds;
     public GameObject tool;
     
 
@@ -28,7 +28,14 @@ public class WorkerAIScript : MonoBehaviour
     float maxSpeed = 4;                        //on aiPath
     AIPath aiPath;
 
-    //animation
+    //Needs
+    float energyMax = 100f;
+    public float energyCurr;
+    float energyDrainRate = 1f; //1 per sec
+    float energyLowLimit = 30f;
+
+
+
 
     public void SetIsInteracting(bool interacting) {
     isInteracting = interacting;
@@ -40,20 +47,45 @@ public class WorkerAIScript : MonoBehaviour
         taskManagerScript = GameObject.Find("TaskManager").GetComponent<TaskManagerScript>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
-        audioSource = GetComponent<AudioSource>();
-        audioSource.Stop();
-        audioSource.loop = false;
+        sounds = GetComponentInChildren<WorkerAudio>();
         aiPath = GetComponent<AIPath>();
-        aiPath.maxSpeed = maxSpeed;
+         aiPath.maxSpeed = maxSpeed;
+
+        //needs
+        energyCurr = energyMax;
     }
 
     public void Update()
     {
+        energyCurr -= 1f * Time.deltaTime;
         GetComponent<SpriteRenderer>().sortingOrder = Mathf.RoundToInt(transform.position.y * 100f) * -1;
+
+
         CheckIfMoving();
         DoWhileMoving();
         TestStuff();
+        CheckNeeds();
         ManageTask();
+    }
+
+    void CheckNeeds() {
+        energyCurr -= energyDrainRate;
+
+        if (NoNeeds() == false) {
+            //ownerAIPath.destination = coffe machine
+        }
+    }
+
+    public bool NoNeeds()
+    {
+        if (energyCurr > energyLowLimit)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     public void SetMoveSpeed(float speed) {
@@ -73,23 +105,23 @@ public class WorkerAIScript : MonoBehaviour
     public void DoWhileMoving()
     {
         UpdateGfx();
-        UpdateSound();
+        //UpdateSound();
     }
 
-    public void UpdateSound()
-    {
-        if (isMoving)
-        {
+    //public void UpdateSound()
+    //{
+    //    if (isMoving)
+    //    {
             
-            if (!audioSource.isPlaying)
+    //        if (!audioSource.isPlaying)
 
-            {
-                audioSource.pitch = Time.timeScale;
-                audioSource.Play();
+    //        {
+    //            audioSource.pitch = Time.timeScale;
+    //            audioSource.Play();
 
-            }
-        }
-    }
+    //        }
+    //    }
+    //}
 
     public void CheckIfMoving() {
 
@@ -122,7 +154,7 @@ public class WorkerAIScript : MonoBehaviour
 
     public void ManageTask() {
 
-        if (myCurrentTask == null)
+        if (myCurrentTask == null) //add needs-check
         {
             myCurrentTaskType = "No current Task";
 
@@ -132,6 +164,7 @@ public class WorkerAIScript : MonoBehaviour
                 myCurrentTask = taskManagerScript.RequestTask(gameObject);
             }
         }
+        
 
         else
         {
