@@ -61,10 +61,10 @@ public class IndicatorState : MonoBehaviour
         lightColor.sprite = lights[lightState];
         colorEmitted.color = lightColors[lightState];
         colorEmitted.intensity = lightsIntensity[lightState];
-        Debug.Log("Set lightIntensity to: " + lightState);
+        //Debug.Log("Set lightIntensity to: " + lightState);
 
 
-        Debug.Log("trying to set lights to: " + lightState);
+        //Debug.Log("trying to set lights to: " + lightState);
 
         if (lightState != 1)
         {

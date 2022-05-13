@@ -29,13 +29,22 @@ public class WorkerAIScript : MonoBehaviour
     AIPath aiPath;
 
     //Needs
-    float energyMax = 100f;
+    GameObject needTarget;
+    Transform needTargetTransform;
+    float energyMax = 200f;
     public float energyCurr;
     float energyDrainRate = 1f; //1 per sec
-    float energyLowLimit = 30f;
+    public float energyLowLimit = 20f;
 
+    //Timing
+    public float TimerWaitWithMove;
+    public bool isBusy;
+    public float interactRequestTimer = 0;
+    public bool canInteract;
 
-
+    public void SetTimerWaitWithMove(float t) {
+    TimerWaitWithMove = t;
+    }
 
     public void SetIsInteracting(bool interacting) {
     isInteracting = interacting;
@@ -43,13 +52,12 @@ public class WorkerAIScript : MonoBehaviour
 
     public void Start()
     {
-
+        needTarget = new GameObject();
         taskManagerScript = GameObject.Find("TaskManager").GetComponent<TaskManagerScript>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-        animator = GetComponent<Animator>();
-        sounds = GetComponentInChildren<WorkerAudio>();
+
         aiPath = GetComponent<AIPath>();
-         aiPath.maxSpeed = maxSpeed;
+        aiPath.maxSpeed = maxSpeed;
 
         //needs
         energyCurr = energyMax;
@@ -57,10 +65,27 @@ public class WorkerAIScript : MonoBehaviour
 
     public void Update()
     {
-        energyCurr -= 1f * Time.deltaTime;
+        Debug.DrawLine(transform.position, aiPath.destination);
+        energyCurr -= energyDrainRate * Time.deltaTime;
         GetComponent<SpriteRenderer>().sortingOrder = Mathf.RoundToInt(transform.position.y * 100f) * -1;
 
+        TimerWaitWithMove -= Time.deltaTime;
+        if (!isBusy) {
+            OkToDoThings();
+        }
+        interactRequestTimer -= Time.deltaTime;
+        if (interactRequestTimer < 0f)
+        {
+            canInteract = true;
+        }
+        else
+        {
+            canInteract = false;
+        }
 
+    }
+
+    public void OkToDoThings() {
         CheckIfMoving();
         DoWhileMoving();
         TestStuff();
@@ -68,12 +93,71 @@ public class WorkerAIScript : MonoBehaviour
         ManageTask();
     }
 
+    public void SetMaxEnergy() {
+        energyCurr = energyMax;
+        needTarget = null;
+        Debug.Log("Energy is now set to max!");
+    }
+
     void CheckNeeds() {
-        energyCurr -= energyDrainRate;
+        energyCurr -= energyDrainRate * Time.deltaTime;
 
         if (NoNeeds() == false) {
-            //ownerAIPath.destination = coffe machine
+            isInteracting = false;
+
+            if (needTarget == null)
+            {
+                needTarget = FindItemToReplenishNeed("energy");
+                needTargetTransform = needTarget.GetComponent<SimpleMachine>().interactPosition;
+            }
+            else if (canInteract)
+            {
+                aiPath.destination = needTargetTransform.position;
+                
+                if (aiPath.reachedDestination && needTarget.GetComponent<SimpleMachine>().isAvailable && canInteract)
+                {
+                    interactRequestTimer = 1;
+                    needTarget.GetComponent<SimpleMachine>().Interact(gameObject);
+
+                }
+                else if (!needTarget.GetComponent<SimpleMachine>().isAvailable)
+                {
+                    interactRequestTimer = 1;
+                    Debug.Log("SimpleMachine is busy, waiting some time");
+                    return;
+
+                }
+                else if (!aiPath.reachedDestination)
+                {
+                    Debug.Log("Probably not close enough to destination to allow interact");
+                }
+                else if (!canInteract) {
+                    Debug.Log("Not allowed to interact yet");
+                }
+            }
         }
+        else
+        {
+            needTarget = null;
+        }
+    }
+
+    public GameObject FindItemToReplenishNeed(string source)
+    {
+
+
+        if (source == "energy")
+        {
+            GameObject RefillEnergyObject = GameObject.FindGameObjectWithTag("EnergyRefill");
+             needTarget = RefillEnergyObject;
+
+        }
+        if (source == "food")
+        {
+            GameObject RefillEnergyObject = GameObject.FindGameObjectWithTag("FoodRefill");
+            needTarget = RefillEnergyObject;
+        }
+        return needTarget;
     }
 
     public bool NoNeeds()
@@ -127,14 +211,14 @@ public class WorkerAIScript : MonoBehaviour
 
         if (transform.hasChanged)
         {
-            Debug.Log("is moving");
+            //Debug.Log("is moving");
             isMoving = true;
             transform.hasChanged = false;
         }
         else
         {
             isMoving = false;
-            Debug.Log("isn't moving");
+            //Debug.Log("isn't moving");
         }
 
     }
@@ -154,33 +238,41 @@ public class WorkerAIScript : MonoBehaviour
 
     public void ManageTask() {
 
-        if (myCurrentTask == null) //add needs-check
+        if (NoNeeds() == true)
         {
-            myCurrentTaskType = "No current Task";
 
-            waitToAskForTaskTimer -= Time.deltaTime;
-            if (myCurrentTask == null && waitToAskForTaskTimer <= 0f)
+            if (myCurrentTask == null) //add needs-check
             {
-                myCurrentTask = taskManagerScript.RequestTask(gameObject);
-            }
-        }
-        
+                myCurrentTaskType = "No current Task";
 
-        else
-        {
-            myCurrentTaskType = myCurrentTask.desc;
-            //Debug.Log("myCurrentTask: " + myCurrentTask.status);
-
-            if (myCurrentTask.status != ITask.Status.Completed)
-            {
-                myCurrentTask.DoTask();
+                waitToAskForTaskTimer -= Time.deltaTime;
+                if (myCurrentTask == null && waitToAskForTaskTimer <= 0f)
+                {
+                    myCurrentTask = taskManagerScript.RequestTask(gameObject);
+                }
             }
+
+
             else
             {
-                myCurrentTask = null;
-                waitToAskForTaskTimer = Random.Range(waitToAskForTaskTimeMin, waitToAskForTaskTimeMax);
-                animator.Play("note-OK");
+                myCurrentTaskType = myCurrentTask.desc;
+                //Debug.Log("myCurrentTask: " + myCurrentTask.status);
+
+                if (myCurrentTask.status != ITask.Status.Completed)
+                {
+                    myCurrentTask.DoTask();
+                }
+                else
+                {
+                    myCurrentTask = null;
+                    waitToAskForTaskTimer = Random.Range(waitToAskForTaskTimeMin, waitToAskForTaskTimeMax);
+                    animator.Play("note-OK");
+                }
             }
+        }
+        else
+        {
+            return; // Instead go fullfill needs
         }
     }
 

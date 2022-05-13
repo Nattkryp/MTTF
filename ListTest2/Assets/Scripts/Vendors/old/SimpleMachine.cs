@@ -5,9 +5,9 @@ using UnityEngine;
 public class SimpleMachine : MonoBehaviour
 {
     Animator animator;
-    AudioSource audioSource;
     public AudioSource audioGrind;
     public AudioSource audioFill;
+    public Transform interactPosition;
 
     public bool makeSound = false;
     public bool isRunning = false;
@@ -15,34 +15,78 @@ public class SimpleMachine : MonoBehaviour
     public bool isBroken = false;
     public bool isRepared = false;
 
+    public GameObject interactObject;
+    public bool isAvailable = true;
+    public float restartTimer = 0;
+
+    
+
+
+
+
     public void Start()
     {
-        audioSource = GetComponent<AudioSource>();
         animator = GetComponent<Animator>();
+        GetComponent<SpriteRenderer>().sortingOrder = Mathf.RoundToInt(transform.position.y * 100f) * -1;
     }
 
-    public void PlayGrind() {
-        audioGrind.Play();
-        
-    }
-
-    public void PlayFill()
+    public void Update()
     {
-        audioFill.Play();
+        restartTimer -= 1 * Time.deltaTime;
+
+        if (restartTimer <= 0)
+        {
+            isAvailable = true;
+        }
+        else 
+        {
+        isAvailable = false;
+        }
     }
 
-    public void FillCup() {
+    public void Interact(GameObject worker) {
+        isAvailable = false;
+        interactObject = worker; 
+        FillCup();
+    }
+    public void FillCup()
+    {
 
         if (isBroken)
         {
             //play broken sound?
             return;
         }
-        else {
-
+        else
+        {
             animator.Play("fill");
         }
     }
+    public void ReEnergize()
+    {
+        Debug.Log("Animation tries to set max energy on worker");
+        interactObject.GetComponent<WorkerAIScript>().SetMaxEnergy();
+        interactObject = null;
+        restartTimer = 10f; //waiting time after completed animations before allowing next in queue to interact (they check available)
+    }
+
+    public void PlayFill()
+    {
+
+        audioFill.Play();
+    }
+
+
+
+
+    public void PlayGrind()
+    {
+        audioGrind.Play();
+    }
+
+
+
+
     public void StopMachine() {
         if (isRunning)
         {

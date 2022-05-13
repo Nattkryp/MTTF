@@ -44,7 +44,7 @@ public class Task_WalkToPosition : ITask
     {
         if (owner != null && destination != null)
         {
-            var ownerTask = owner.GetComponent<WorkerAIScript>().myCurrentTask;
+            var ownerTask = owner.GetComponent<AgentController>().myCurrentTask;
             var ownerAIPath = owner.GetComponent<AIPath>();
 
             SetTaskOngoing(ownerTask);
@@ -114,7 +114,7 @@ public class Task_Patrol : ITask
     {
         if (owner != null && destinations.Count != 0)
         {
-            var ownerTask = owner.GetComponent<WorkerAIScript>().myCurrentTask;
+            var ownerTask = owner.GetComponent<AgentController>().myCurrentTask;
             var ownerAIPath = owner.GetComponent<AIPath>();
 
             SetTaskOngoing(ownerTask);
@@ -241,7 +241,7 @@ public class Task_SetStateOnMachine : ITask
     {
         if (owner != null && machine != null)
         {
-            var ownerTask = owner.GetComponent<WorkerAIScript>().myCurrentTask;
+            var ownerTask = owner.GetComponent<AgentController>().myCurrentTask;
             var ownerAIPath = owner.GetComponent<AIPath>();
             Vector2 targetpos;
 
@@ -344,7 +344,7 @@ public class Task_RepairMachine : ITask
     {
         if (owner != null && machine != null)
         {
-            var ownerTask = owner.GetComponent<WorkerAIScript>().myCurrentTask;
+            var ownerTask = owner.GetComponent<AgentController>().myCurrentTask;
             var ownerAIPath = owner.GetComponent<AIPath>();
 
             SetTaskOngoing(ownerTask);
@@ -385,9 +385,9 @@ public class Task_RepairMachine : ITask
         if (timeOnEachPositionCounter <= 0)
         {
             //Stop owner from working on the current position
-            if (owner.GetComponent<WorkerAIScript>().isInteracting == true)
+            if (owner.GetComponent<AgentController>().isInteracting == true)
             {
-                owner.GetComponent<WorkerAIScript>().SetIsInteracting(false);
+                owner.GetComponent<AgentController>().SetIsInteracting(false);
 
                 //TEMPORARY HANDLE AUDIO FOR INTERACTION IN WORKER LATER ON.
                 if (owner.transform.GetChild(0).GetComponent<AudioSource>().isPlaying == true)
@@ -460,7 +460,7 @@ public class Task_RepairMachine : ITask
                 //Set task completed if not completed.
                 if (ownerTask.status != ITask.Status.Completed)
                 {
-                    owner.GetComponent<WorkerAIScript>().SetIsInteracting(false); //Set false just in case it hasn't stopped yet
+                    owner.GetComponent<AgentController>().SetIsInteracting(false); //Set false just in case it hasn't stopped yet
                     machine.GetComponent<Machine>().SetOrderedState(2);//JUST STOP MACHINE AFTER REPAIR! TEMPORARY
                     ownerTask.status = ITask.Status.Completed;
 
@@ -473,9 +473,9 @@ public class Task_RepairMachine : ITask
             }
 
             //At repair position set 
-            if(owner.GetComponent<WorkerAIScript>().isInteracting == false)
+            if(owner.GetComponent<AgentController>().isInteracting == false)
             {
-                owner.GetComponent<WorkerAIScript>().SetIsInteracting(true);
+                owner.GetComponent<AgentController>().SetIsInteracting(true);
             }
 
             //TEMPORARY HANDLE AUDIO FOR INTERACTION IN WORKER LATER ON.

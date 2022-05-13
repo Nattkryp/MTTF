@@ -108,6 +108,11 @@ MonoBehaviour:
   lastPos: {x: 0, y: 0}
   isInteracting: 0
   energyCurr: 0
+  energyLowLimit: 120
+  TimerWaitWithMove: 0
+  isBusy: 0
+  interactRequestTimer: 0
+  canInteract: 0
 --- !u!114 &2536972008559984735
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -319,6 +324,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b752cb04aa360894c94174bc376c769c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  audioInteract: {fileID: 0}
+  AudioWalk: {fileID: 0}
 --- !u!1 &1799118625977627544
 GameObject:
   m_ObjectHideFlags: 0
