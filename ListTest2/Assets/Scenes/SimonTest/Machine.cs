@@ -7,12 +7,10 @@ public class Machine : MonoBehaviour
 {
 
     //Statestuff
-    [SerializeField] int _orderedState; //used to try change the state
-    [SerializeField] int _laststate;    //used to evaluate vs _state to see if state changed
-    [SerializeField] int _state;        //1 = Started, 2 = Stopped, 3 = Service, 4 = broken
-
-    //Machine Data
-    [SerializeField] string _machineDescription; //not used
+    [SerializeField]State state;
+    //MachineManager
+    MachineManager manager;
+    
 
     //Statistics
     [SerializeField] float _totTime;    //totTime = downtime + uptime (broken + running time) in seconds.
@@ -25,177 +23,132 @@ public class Machine : MonoBehaviour
     [SerializeField] public float _maxCondition = 100;      //Made public so a Worker need to know what maxCondition is.
     [SerializeField] public float _condition = 100;         //Made public so a worker can know when repair is done. Done at _maxCondition.
     [SerializeField] float _decayAmount = 0;                //Accumulated decay
-    [SerializeField] float _decayRate = 5;
+    [SerializeField] float _decayRate = 0.07f;
     [SerializeField] float _conditionUpdateInterval = 1;    //seconds
     [SerializeField] float _timerConditionUpdate = 1;       //seconds
-    [SerializeField] float _breakTryCooldown = 1;           //seconds
+    [SerializeField] float _breakTryCooldown = 5;           //seconds
     [SerializeField] float _breakTryTimer = 3;              //seconds
 
+
+
+
+
     //Functionality
-    public IndicatorState indicatorLight;
+    public IndicatorState lightIndicator;
+    public float lightIntensity = 5f;
 
     public AudioSource soundClick;
     public AudioSource soundRunning;
 
+    //Interaction positions
+    public Transform operatorStartPos;
+
+    public enum State
+    {
+        Stopped,
+        Running,
+        Broken,
+        Repairing
+    }
+
     private void Start()
     {
-        _state = 1; //Start with running (temporary, should probably require an operator to start it)
+        state = State.Stopped;
+        _condition -= Random.Range(0, 50);
+
     }
     public void Update()
     {
+
         GetComponent<SpriteRenderer>().sortingOrder = Mathf.RoundToInt(transform.position.y * 100f) * -1;
 
-        //Events
-        if (_state == 1) {
-            ConditionChanges(); //adjust condition based on "run time" - over time decay.
+        //timers
+        _timerConditionUpdate -= Time.deltaTime;
+        _breakTryTimer -= Time.deltaTime;
+
+        switch (state)
+        {
+
+            case State.Stopped:
+                soundRunning.loop = false;
+                lightIndicator.SetLight(Color.yellow, lightIntensity, false, 0, 0);
+                break;
+
+            case State.Running:
+                lightIndicator.SetLight(Color.green, lightIntensity, false, 0, 0);
+                soundRunning.Play();
+                soundRunning.loop = true;
+                _condition -= _decayRate * Time.deltaTime;
+
+                if (_breakTryTimer <= 0)
+                {
+                    _breakTryTimer = _breakTryCooldown;
+                    TryBreakDown(_condition);
+                }
+
+                break;
+
+            case State.Broken:
+                lightIndicator.SetLight(Color.red, lightIntensity, true, 1, 1);
+                break;
+
+            case State.Repairing:
+                lightIndicator.SetLight(Color.red, lightIntensity, false, 0, 0);
+                break;
         }
 
-        //State
-//        OnStateChanged();
-        UpdateState();
-        
-
-        //Statistics
-        TimeLogging();
-        UpdateStatistics();
-
-        _laststate = _state;
+        //SetLight(); //Machines state to set the lights accordinglyo
+        //soundClick.Play(); //"Press button" sound to be played if worker sets start or stop
     }
 
+    public void SetState(State _state) {
+        state = _state;
+    }
     
     public void Repair(int x) {
         if (_condition < _maxCondition)
         {
             AddCondition(x);
         }
-        else 
-        {
-            //Sets state to 1 in another task
-            
-        }
-    }
-    public void ApplyOrderedState(int orderedState) {
-        _state = orderedState;
-        _orderedState = 0;
-        //Debug.Log("SetOrderedState ran");
-    }
-
-    public void SetOrderedState(int orderedState)
-    {
-        _orderedState = orderedState;
-        //Debug.Log("SetOrderedState ran");
     }
 
     public void AddCondition(float x)
     {
         _condition += x;
         _condition = Mathf.Clamp(_condition, 0, _maxCondition);
-
     }
 
-    void ConditionChanges()
-    {
-        //timers
-
-        _timerConditionUpdate -= Time.deltaTime;
-        _breakTryTimer -= Time.deltaTime;
-
-        //Time accumulated
-        _decayAmount += _decayRate * Time.deltaTime;
-
-
-        if (_timerConditionUpdate <= 0f)
-        {
-            _timerConditionUpdate = _conditionUpdateInterval;
-            AddCondition(-_decayAmount);
-            _decayAmount = 0;
-        }
-
-        if (_breakTryTimer <= 0f)               //Timer is out but not already broken. // <= 0f && _state != 4
-        {
-
-            _breakTryTimer = _breakTryCooldown;
-            TryBreakDown(_condition);
-            //Debug.Log("Try breakdown roll");
-        }
-        else
-        {
-
-            return;
-        }
-    }
     void TryBreakDown(float condition)
     {
         float riskRoll = Random.Range(0f, 100f);
-
+        riskRoll -= 30f;
+        Debug.Log("Rolled " + riskRoll + " vs " + condition);
 
         if (riskRoll > condition)
         {
-            SetOrderedState(4); //broken state
-                                //play breakdown audio
-            //Debug.Log("Risk roll set machine in broken state");
+            SetState(state = State.Broken);
+            //Play breaking sound
 
+            //Create task (temporary) to be repaired
             GameObject.Find("TaskManager").GetComponent<TaskManagerScript>().CreateTask_RepairMachine(1, gameObject);// Added this at this way temporary! FOR TEST!
         }
-        //Debug.Log("Breakdown Rolled : " + riskRoll + "vs Condition: " + _condition);
     }
-    void UpdateStatistics()
-    {
-        _totTime = _downTime + _upTime;
-        _downTime = _downTime / _totTime;
-        _upTime = _upTime / _totTime;
-    }
-    void TimeLogging()
-    {
-        if (_state == 4)
-        {
-            _downTime += Time.deltaTime;
-        }
-        if (_state == 1)
-        {
-            _upTime += Time.deltaTime;
-        }
-        _totTime = _downTime + _upTime;
-    }
-    void OnStateChanged()
-    {
-       
-        
-        if (_laststate != _state)
-        {
-            //Debug.Log("OnStateChanged ran");
-            SetLight();
-            soundClick.Play();
-            if (_state == 1)
-            {
-                soundRunning.Play();
-            }
-            else
-            {
-                soundRunning.Stop();
-            }
-        }
 
-    }
     void SetLight()
     {
-        indicatorLight.SetLight(_state);
+        //indicatorLight.SetLight(_state);
 
     }
-    void UpdateState()
-    {
-        
-        //Set state = orderedState if it haven't got a state
-        if (_state != _orderedState && _orderedState != 0)
-        {
-            //Debug.Log("UpdateState tries to run SetorderedState since state is" + _state.ToString() + "and _orderedState is:" + _orderedState.ToString());
-            ApplyOrderedState(_orderedState);
-            OnStateChanged();
-        }
 
-        //Indication
-
+    public Transform GetOperatorStartPos() {
+        return operatorStartPos;
     }
+
+    public State GetState() {
+        return state;
+    }
+
+    public float GetCondition() { return _condition; }
     
 }
 

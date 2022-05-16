@@ -32,6 +32,8 @@ public class AgentController : MonoBehaviour
     public GameObject machine;
     public GameObject entrance;
     public int machinePrio = 2;
+    public BreakRoomStool favoriteStool;
+
 
     public bool careToSelf = false;
 
@@ -74,6 +76,8 @@ public class AgentController : MonoBehaviour
 
     private void Update()
     {
+        UpdateGfx();
+        aiPath.maxSpeed = moveSpeed;
         GetComponent<SpriteRenderer>().sortingOrder = Mathf.RoundToInt(transform.position.y * 100f) * -1;
         //activity announced through onHourChange-event.
 
@@ -109,19 +113,33 @@ public class AgentController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("Agent Got triggered by " + other);
+//        Debug.Log("Agent Got triggered by " + other);
         if (other.gameObject.GetComponent<Interactable>() != null)
         {
+            Interactable interactable = other.gameObject.GetComponent<Interactable>();
             Debug.Log("Trying to get the vendor to interact");
-            other.gameObject.GetComponent<Interactable>().InteractVendor(this, focusedNeed);
-            StartCoroutine(pauseMovement(5f));
+            interactable.Interact(this);
+            StartCoroutine(AnimDrinkCoffee(5f));
 
         }
         else
         {
-            Debug.Log("Didn't look as if whatever i collided with could be interacted with");
+            //Debug.Log("Didn't look as if whatever i collided with could be interacted with");
         }
     }
+
+    IEnumerator AnimDrinkCoffee(float t)
+    {
+        Debug.Log("Pausing movement for animation for: " + t + " secs");
+        moveSpeed = 0f;
+        Debug.Log("Playing animation");
+        animator.Play("interact");
+
+        yield return new WaitForSeconds(t);
+        Debug.Log("Resuming movement");
+        moveSpeed = normalMoveSpeed;
+    }
+
 
     IEnumerator pauseMovement(float t)
     {
@@ -133,10 +151,45 @@ public class AgentController : MonoBehaviour
     }
 
     public void ManageNeeds() {
+        if (needsManager.GetHighestPriorityNeedPriority() < 10)
+        {
+            //Debug.Log("My needs are getting higher priority - below 10");
+            focusedNeed = needsManager.GetHighestPriorityNeed();
+            neededVendor = GameObject.FindGameObjectWithTag(focusedNeed.vendorTag);
+            moveToNeedTarget = neededVendor.GetComponent<VendingMachine>().interactposition.transform.position;
+        }
+        else
+        {
+            //Debug.Log("My needs are fullfilled, but I'm having a break so lets go sit down for a while");
+        IdleInBreakRoom();
+        }
+    }
 
-        focusedNeed = needsManager.GetHighestPriorityNeed();
-        neededVendor = GameObject.FindGameObjectWithTag(focusedNeed.vendorTag);
-        moveToNeedTarget = neededVendor.transform.position;
+    public void IdleInBreakRoom() {
+
+        if (favoriteStool == null)
+        {
+            GameObject[] seats = GameObject.FindGameObjectsWithTag("BreakIdle");
+
+            foreach (var seat in seats)
+            {
+
+                if (seat.GetComponent<BreakRoomStool>().GetAvailability())
+                {
+                    //Debug.Log("Testing one seat");
+                    seat.GetComponent<BreakRoomStool>().Reserve(this.gameObject);
+                    favoriteStool = seat.gameObject.GetComponent<BreakRoomStool>();
+                    return;
+                }
+
+            }
+
+        }
+        else if (moveToNeedTarget != null) 
+        {
+
+            moveToNeedTarget = favoriteStool.transform.position;
+        }
     }
 
     public void LeaveWork()
@@ -213,7 +266,7 @@ public class AgentController : MonoBehaviour
 
     public void UpdateGfx()
     {
-        spriteRenderer.sortingOrder = Mathf.RoundToInt(transform.position.y * 100f) * -1;
+
 
 
         if (isMoving)

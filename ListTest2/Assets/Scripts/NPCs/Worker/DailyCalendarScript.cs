@@ -11,7 +11,7 @@ public class DailyCalendarScript : MonoBehaviour
     public int currentActivityNo;
     public string currentActivity;
     public int currentHour;
-    public int lastHour;
+    public int lastHour = 23;
 
     public delegate void OnHourChangedEvent(int currentActivityNo);
     public static event OnHourChangedEvent onHourChange;
@@ -19,20 +19,88 @@ public class DailyCalendarScript : MonoBehaviour
     private void Start()
     {
 
-        //Morning
+
+
+        //Test work
         //for (int i = 0; i < 6; i++)
         //{
         //    GameObject go = Instantiate(rowPrefab, transform);
         //    go.GetComponent<Sched_HourClass>().hour = i;
-        //    go.GetComponent<Sched_HourClass>().activityNo = 3;
+        //    go.GetComponent<Sched_HourClass>().activityNo = 1;
+        //}
+
+        //Test breakroom 2h, work 2h, 2h break
+        //for (int i = 0; i < 2; i++)
+        //{
+        //    GameObject go = Instantiate(rowPrefab, transform);
+        //    go.GetComponent<Sched_HourClass>().hour = i;
+        //    go.GetComponent<Sched_HourClass>().activityNo = 1;
+        //}
+
+        //for (int i = 2; i < 5; i++)
+        //{
+        //    GameObject go = Instantiate(rowPrefab, transform);
+        //    go.GetComponent<Sched_HourClass>().hour = i;
+        //    go.GetComponent<Sched_HourClass>().activityNo = 2;
+        //}
+
+        //for (int i = 5; i < 8; i++)
+        //{
+        //    GameObject go = Instantiate(rowPrefab, transform);
+        //    go.GetComponent<Sched_HourClass>().hour = i;
+        //    go.GetComponent<Sched_HourClass>().activityNo = 1;
+        //}
+
+
+        //Test breakroom 6h in a row
+        //for (int i = 0; i < 6; i++)
+        //{
+        //    GameObject go = Instantiate(rowPrefab, transform);
+        //    go.GetComponent<Sched_HourClass>().hour = i;
+        //    go.GetComponent<Sched_HourClass>().activityNo = 2;
+        //}
+
+        //Set morning
+        //for (int i = 0; i < 6; i++)
+        //{
+        //    GameObject go = Instantiate(rowPrefab, transform);
+        //    go.GetComponent<Sched_HourClass>().hour = i;
+        //    go.GetComponent<Sched_HourClass>().activityNo = 1;
         //}
 
         //Day
-        for (int i = 0; i < 24; i++)
+
+        for (int i = 0; i < 7; i++)
         {
             GameObject go = Instantiate(rowPrefab, transform);
             go.GetComponent<Sched_HourClass>().hour = i;
-            go.GetComponent<Sched_HourClass>().activityNo = UnityEngine.Random.Range(1, 3);
+            go.GetComponent<Sched_HourClass>().activityNo = 1;
+        }
+
+        for (int i = 7; i < 8; i++)
+        {
+            GameObject go = Instantiate(rowPrefab, transform);
+            go.GetComponent<Sched_HourClass>().hour = i;
+            go.GetComponent<Sched_HourClass>().activityNo = 2;
+        }
+        for (int i = 8; i < 12; i++)
+        {
+            GameObject go = Instantiate(rowPrefab, transform);
+            go.GetComponent<Sched_HourClass>().hour = i;
+            go.GetComponent<Sched_HourClass>().activityNo = 1;
+        }
+        for (int i = 12; i < 13; i++)
+        {
+            GameObject go = Instantiate(rowPrefab, transform);
+            go.GetComponent<Sched_HourClass>().hour = i;
+            go.GetComponent<Sched_HourClass>().activityNo = 2;
+        }
+
+        for (int i = 13; i < 24; i++)
+        {
+            GameObject go = Instantiate(rowPrefab, transform);
+            go.GetComponent<Sched_HourClass>().hour = i;
+            go.GetComponent<Sched_HourClass>().activityNo = 1;
         }
 
 

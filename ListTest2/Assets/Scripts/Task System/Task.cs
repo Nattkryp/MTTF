@@ -303,7 +303,7 @@ public class Task_SetStateOnMachine : ITask
             if (clickingtime <= 0)
             {
                 //Set new machine state
-                machine.GetComponent<Machine>().SetOrderedState(machineState);
+                machine.GetComponent<Machine>().SetState(Machine.State.Stopped);    //Set stopped, Operator will come and start
 
                 //Set task completed
                 if (ownerTask.status != ITask.Status.Completed)
@@ -461,7 +461,7 @@ public class Task_RepairMachine : ITask
                 if (ownerTask.status != ITask.Status.Completed)
                 {
                     owner.GetComponent<AgentController>().SetIsInteracting(false); //Set false just in case it hasn't stopped yet
-                    machine.GetComponent<Machine>().SetOrderedState(2);//JUST STOP MACHINE AFTER REPAIR! TEMPORARY
+                    machine.GetComponent<Machine>().SetState(Machine.State.Stopped);//JUST STOP MACHINE AFTER REPAIR! TEMPORARY
                     ownerTask.status = ITask.Status.Completed;
 
                     //TEMPORARY HANDLE AUDIO FOR INTERACTION IN WORKER LATER ON.

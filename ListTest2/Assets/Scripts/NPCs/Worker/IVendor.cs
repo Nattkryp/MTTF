@@ -5,11 +5,7 @@ using UnityEngine;
     interface IVendor
     
     {
-    void PlayVendingAnimation();
-
     void SupplyNeed(AgentController agent,Need need, float amount);
-
-    
     }
     
 

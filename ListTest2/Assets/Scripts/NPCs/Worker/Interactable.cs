@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Interactable : MonoBehaviour, IInteractable
+public class Interactable : MonoBehaviour
 {
-    public void InteractVendor(AgentController agent, Need need)
+    public virtual void Interact(AgentController agent)
     {
-        gameObject.GetComponent<VendingMachine>().vendor.InteractVendor(agent, need); 
+        Debug.Log("Default interact to be overwritten by derived");
     }
 }

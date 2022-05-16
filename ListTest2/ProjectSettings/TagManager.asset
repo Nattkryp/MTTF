@@ -7,6 +7,7 @@ TagManager:
   - Machine
   - Entrance
   - EnergyVendor
+  - BreakIdle
   layers:
   - Default
   - TransparentFX

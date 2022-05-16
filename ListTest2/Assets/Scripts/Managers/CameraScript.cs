@@ -48,13 +48,13 @@ public class CameraScript : MonoBehaviour
         }
 
         //Camera Zoom
-        if (Input.GetKey(KeyCode.Z))
+        if (Input.GetKeyDown(KeyCode.Z))
         {
-            cam.orthographicSize = cam.orthographicSize + 10 * baseScrollSpeed / 0.67f * Time.deltaTime;
+            cam.orthographicSize = cam.orthographicSize + 10 * baseScrollSpeed / 3f * Time.deltaTime;
         }
-        if (Input.GetKey(KeyCode.C))
+        if (Input.GetKeyDown(KeyCode.C))
         {
-            cam.orthographicSize = cam.orthographicSize - 10 * baseScrollSpeed / 0.67f * Time.deltaTime;
+            cam.orthographicSize = cam.orthographicSize - 10 * baseScrollSpeed / 3f * Time.deltaTime;
             cam.orthographicSize = Mathf.Clamp(cam.orthographicSize, 0.2f, 30f);
         }
 

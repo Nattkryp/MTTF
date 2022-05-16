@@ -34,19 +34,21 @@ public class TaskManagerScript : MonoBehaviour
         listofpositions.Add(pos3);
         listofpositions.Add(pos4);
 
+
+        
         GameObject firstTarget;
         firstTarget = GameObject.FindGameObjectWithTag("Machine");
-        if (firstTarget !=null)
+        if (firstTarget != null)
         {
             //Debug.Log("Starting: I found a machine to set to running!");
-            CreateTask_SetStateOnMachine(1, firstTarget,1);
+            CreateTask_SetStateOnMachine(1, firstTarget, 1);
         }
         else
         {
             //Debug.Log("Starting: didn't find a machine to start up - going to a default position");
             CreateTask_WalkToPosition(1, new Vector2(0, 0));
         }
-        
+
     }
 
     public void CreateTask_WalkToPosition(int priority, Vector2 destination)
