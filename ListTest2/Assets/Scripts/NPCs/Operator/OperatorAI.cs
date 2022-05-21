@@ -11,7 +11,7 @@ public class OperatorAI : MonoBehaviour {
     public GameObject machineTarget;
 
     Animator animator;
-    WorkerAudio sounds;
+    //WorkerAudio sounds;
 
 
     public bool isMoving;
@@ -31,7 +31,7 @@ public class OperatorAI : MonoBehaviour {
     private void Start()
     {
         animator = GetComponent<Animator>();
-        sounds = GetComponentInChildren<WorkerAudio>();
+        //sounds = GetComponentInChildren<WorkerAudio>();
 
         aIPath = GetComponent<AIPath>();
         aIPath.maxSpeed = 3;
@@ -59,7 +59,7 @@ public class OperatorAI : MonoBehaviour {
                     {
                         machineTarget = machine;
                         state = State.Move;
-                        Debug.Log("Found machinetarget: " + machineTarget.ToString() + " moving to MoveState");
+                        //Debug.Log("Found machinetarget: " + machineTarget.ToString() + " moving to MoveState");
                         break;
                     }
                 }
@@ -75,7 +75,7 @@ public class OperatorAI : MonoBehaviour {
                 {
                     aIPath.canMove = false;
                     state = State.StartMachine;
-                    Debug.Log("Near machineTarget, moving to start machine state");
+                    //Debug.Log("Near machineTarget, moving to start machine state");
                 }
                 else
                 {
@@ -94,7 +94,7 @@ public class OperatorAI : MonoBehaviour {
             case State.StartMachine:
                 machineTarget.GetComponent<Machine>().SetState(Machine.State.Running);
                 machineTarget = null;
-                Debug.Log("Ordered machine to start. Dropping target and going idle");
+                //Debug.Log("Ordered machine to start. Dropping target and going idle");
                 state = State.Idle;
                 break;
             //case State.StopMachine:
@@ -124,6 +124,8 @@ public class OperatorAI : MonoBehaviour {
 
     public void UpdateGfx()
     {
+        CheckIfMoving();
+
         if (isMoving)
         {
             animator.SetBool("IsMoving", true);

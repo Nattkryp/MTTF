@@ -323,6 +323,8 @@ public class Task_RepairMachine : ITask
     public GameObject owner { get; set; }
     public ITask.Status status { get; set; }
     public GameObject machine { get; set; }
+    public int repairAmount { get; set; }
+    public int repairedAmount { get; set; }
     ITask.Status ITask.status { get; set; }
     public float timeOnEachPosition { get; set; }
     public float timeOnEachPositionCounter { get; set; }
@@ -330,14 +332,18 @@ public class Task_RepairMachine : ITask
     public Vector2 targetPos { get; set; }
     public bool repairOnEachPos { get; set; }
 
-    public Task_RepairMachine(int priority, GameObject machine)
+ 
+
+    public Task_RepairMachine(int priority, GameObject machine, int repairAmount)
     {
         this.priority = priority;
         this.title = "Repair machine";
         this.desc = "A task of walking to a machine and repairing it";
         this.machine = machine;
+        this.repairAmount = repairAmount;
+        this.repairedAmount = 0;
         this.status = ITask.Status.Available;
-        this.timeOnEachPosition = 5;//5 seconds on each position now.
+        this.timeOnEachPosition = 5; //5 seconds on each position now.
         this.timeOnEachPositionCounter = 0;
     }
     public void DoTask()
@@ -348,7 +354,7 @@ public class Task_RepairMachine : ITask
             var ownerAIPath = owner.GetComponent<AIPath>();
 
             SetTaskOngoing(ownerTask);
-            CountdownOnEachRepairPosition();
+
             SetNewRepairPositionAfterCountdown();
             MoveToNextRepairPosition(ownerAIPath);
             AtRepairPosition(ownerTask, ownerAIPath);
@@ -373,52 +379,16 @@ public class Task_RepairMachine : ITask
     void SetNewRepairPositionAfterCountdown()
     {
         //Sets a new target position to repair at when countdown is zero.
-
-        //Temporary information to give from machine later on!
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////
-        Vector2 targetPosFront = new Vector2(machine.transform.position.x, machine.transform.position.y - 0.5f);
-        Vector2 targetPosLeft = new Vector2(machine.transform.position.x - 2f, machine.transform.position.y);
-        Vector2 targetPosBack = new Vector2(machine.transform.position.x, machine.transform.position.y + 1.5f);
-        Vector2 targetPosRight = new Vector2(machine.transform.position.x + 2f, machine.transform.position.y);
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
         if (timeOnEachPositionCounter <= 0)
         {
-            //Stop owner from working on the current position
-            if (owner.GetComponent<AgentController>().isInteracting == true)
-            {
-                owner.GetComponent<AgentController>().SetIsInteracting(false);
-
-                //TEMPORARY HANDLE AUDIO FOR INTERACTION IN WORKER LATER ON.
-                if (owner.transform.GetChild(0).GetComponent<AudioSource>().isPlaying == true)
-                {
-                    owner.transform.GetChild(0).GetComponent<AudioSource>().Stop();
-                }
-            }
-
-            //Reset repair for each new position. (Will repair once per position)
             repairOnEachPos = true;
 
             //Reset time
             timeOnEachPositionCounter = timeOnEachPosition;
 
             //Set next in line position
-            if (targetPos == targetPosFront)
-            {
-                targetPos = targetPosLeft;
-            }
-            else if (targetPos == targetPosLeft)
-            {
-                targetPos = targetPosBack;
-            }
-            else if (targetPos == targetPosBack)
-            {
-                targetPos = targetPosRight;
-            }
-            else
-            {
-                targetPos = targetPosFront;
-            }
+            targetPos = machine.GetComponent<Machine>().GetRandomRepairPosition().position;
+            Debug.Log("switching repairspot");
         }
     }
 
@@ -438,8 +408,10 @@ public class Task_RepairMachine : ITask
     void AtRepairPosition(ITask ownerTask, AIPath ownerAIPath)
     {
         //When arrived at repair position
-        if (Vector2.Distance((Vector2)owner.transform.position, targetPos) <= 0.2f)
+        if (Vector2.Distance((Vector2)owner.transform.position, targetPos) <= 0.5f)
         {
+            CountdownOnEachRepairPosition();
+            
             //Set destination to current position of character. Helping against precision which was a little buggy.
             //Can be tested later to remove but solved it like this for now.
             if (ownerAIPath.destination != owner.transform.position)
@@ -450,17 +422,28 @@ public class Task_RepairMachine : ITask
             //Repair once
             if (repairOnEachPos == true)
             {
-                machine.GetComponent<Machine>().Repair(2);
                 repairOnEachPos = false;
+
+                //calculate amount to repair based on worker skill/tools and machine difficulty
+                int calculatedRepairAmount = Mathf.CeilToInt(owner.GetComponent<AgentController>().GetSumRepair() * machine.GetComponent<Machine>().GetRepairDifficulty());
+                machine.GetComponent<Machine>().Repair(calculatedRepairAmount);
+
+                //kepe track of accumulated repair to be able to evaluate when done
+                repairedAmount += calculatedRepairAmount;
+
+                owner.GetComponent<AgentController>().AnimRepair();
             }
 
-            //If condition is 100% on machine. Complete the Task
-            if (machine.GetComponent<Machine>()._condition == machine.GetComponent<Machine>()._maxCondition)
+            //If repaired as much as requested, stop repairing and set machine to stopped. Amount is defined by the machine when generating the task
+            //if (machine.GetComponent<Machine>()._condition == machine.GetComponent<Machine>()._maxCondition)
+            if (repairedAmount >= repairAmount)
             {
+                Debug.Log("Repair status check: " + repairedAmount + " vs " + repairAmount);
                 //Set task completed if not completed.
                 if (ownerTask.status != ITask.Status.Completed)
                 {
-                    owner.GetComponent<AgentController>().SetIsInteracting(false); //Set false just in case it hasn't stopped yet
+
+                    //owner.GetComponent<AgentController>().SetIsInteracting(false); //Set false just in case it hasn't stopped yet
                     machine.GetComponent<Machine>().SetState(Machine.State.Stopped);//JUST STOP MACHINE AFTER REPAIR! TEMPORARY
                     ownerTask.status = ITask.Status.Completed;
 
@@ -472,11 +455,6 @@ public class Task_RepairMachine : ITask
                 }
             }
 
-            //At repair position set 
-            if(owner.GetComponent<AgentController>().isInteracting == false)
-            {
-                owner.GetComponent<AgentController>().SetIsInteracting(true);
-            }
 
             //TEMPORARY HANDLE AUDIO FOR INTERACTION IN WORKER LATER ON.
             if (owner.transform.GetChild(0).GetComponent<AudioSource>().isPlaying != true)

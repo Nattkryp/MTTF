@@ -8,6 +8,9 @@ TagManager:
   - Entrance
   - EnergyVendor
   - BreakIdle
+  - EnergyRefill
+  - WorkIdleSpot
+  - TaskBoard
   layers:
   - Default
   - TransparentFX

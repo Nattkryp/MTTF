@@ -14,6 +14,7 @@ public class TaskManagerScript : MonoBehaviour
             ITask task = tasks[0];
             tasks.RemoveAt(0);
             task.owner = owner;
+            Debug.Log("Gave " + owner.ToString() + " a task");
             return task;
         }
         else
@@ -68,9 +69,10 @@ public class TaskManagerScript : MonoBehaviour
         tasks.Add(newTask);
     }
 
-    public void CreateTask_RepairMachine(int priority, GameObject machine)
+    public void CreateTask_RepairMachine(int priority, GameObject machine, int RepairAmount)
     {
-        Task_RepairMachine newTask = new Task_RepairMachine(priority, machine);
+        Task_RepairMachine newTask = new Task_RepairMachine(priority, machine, RepairAmount);
         tasks.Add(newTask);
+        Debug.Log("Added repair machine task for: " + machine.ToString() + " for a total repair amount of: " + RepairAmount);
     }
 }
