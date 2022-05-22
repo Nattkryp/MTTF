@@ -10,16 +10,20 @@ GameObject:
   m_Component:
   - component: {fileID: 116734289073471405}
   - component: {fileID: 116734288895562326}
-  - component: {fileID: 116734288895562321}
   - component: {fileID: 2536972008559984735}
   - component: {fileID: 1233416756584606864}
   - component: {fileID: 1158950987542474978}
   - component: {fileID: 9083936838895308832}
+  - component: {fileID: 7060794820839950144}
+  - component: {fileID: 4644958942446594024}
+  - component: {fileID: 4644958942446594025}
+  - component: {fileID: 4644958942446594027}
+  - component: {fileID: 4644958942446594026}
   - component: {fileID: 9083936838895308836}
-  - component: {fileID: 666769477996776043}
+  - component: {fileID: 4644958942446594028}
   m_Layer: 0
   m_Name: WorkerAI v2
-  m_TagString: Untagged
+  m_TagString: Worker
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -32,7 +36,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 116734288895562333}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.31, y: 16.65, z: 0}
+  m_LocalPosition: {x: -0.853, y: -8.539, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 7012895720117818700}
@@ -90,29 +94,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &116734288895562321
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 116734288895562333}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a969195d9f014c4fba00068da631b63, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tool: {fileID: 1799118625977627544}
-  myCurrentTaskType: 
-  isMoving: 0
-  lastPos: {x: 0, y: 0}
-  isInteracting: 0
-  energyCurr: 0
-  energyLowLimit: 120
-  TimerWaitWithMove: 0
-  isBusy: 0
-  interactRequestTimer: 0
-  canInteract: 0
 --- !u!114 &2536972008559984735
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -293,6 +274,125 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &7060794820839950144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 116734288895562333}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ea196c864a069a4b87acdb4c6b891e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  taskManagerScript: {fileID: 0}
+  myCurrentTaskType: 
+  waitToAskForTaskTimer: 5
+  isMoving: 0
+  isInteracting: 0
+  neededVendor: {fileID: 0}
+  focusedNeed: {fileID: 0}
+  machine: {fileID: 0}
+  entrance: {fileID: 0}
+  machinePrio: 2
+  favoriteStool: {fileID: 0}
+  careToSelf: 0
+  moveToNeedTarget: {x: 0, y: 0}
+  moveSpeed: 1
+  normalMoveSpeed: 1
+  calendarActivity: 2
+  characterName: John Doe
+--- !u!114 &4644958942446594024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 116734288895562333}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88f14e56ce404f546bf9f1d06a2dad32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteRenderer: {fileID: 0}
+  needList: []
+  overallValue: 0
+  highestPrioNeed: {fileID: 0}
+  highestPrioNeedPrio: 999
+--- !u!114 &4644958942446594025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 116734288895562333}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2beb0c098a1d534a8aeedcea6e27064, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxValue: 100
+  startValue: 85
+  currentValue: 85
+  decayRate: 0.1
+  hhLimit: 80
+  hLimit: 60
+  lLimit: 30
+  llLimit: 0
+  belowHH: 0
+  belowH: 0
+  belowL: 0
+  belowLL: 0
+  vendorTag: 
+  vendorTagname: energyVendor
+--- !u!61 &4644958942446594027
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 116734288895562333}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0.39999998}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.1}
+    oldSize: {x: 1, y: 1}
+    newSize: {x: 0.32, y: 0.32}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
+--- !u!50 &4644958942446594026
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 116734288895562333}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!95 &9083936838895308836
 Animator:
   serializedVersion: 3
@@ -303,7 +403,7 @@ Animator:
   m_GameObject: {fileID: 116734288895562333}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 37a13f7599c715b49a5e5339e5f4341c, type: 2}
+  m_Controller: {fileID: 9100000, guid: c47d6db8e4053354aa928a7d3b8fdf86, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -312,20 +412,21 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &666769477996776043
-MonoBehaviour:
+--- !u!111 &4644958942446594028
+Animation:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 116734288895562333}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b752cb04aa360894c94174bc376c769c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  audioInteract: {fileID: 0}
-  AudioWalk: {fileID: 0}
+  serializedVersion: 3
+  m_Animation: {fileID: 7400000, guid: 98c843ba9e4b0774581ccb9a4d5c8248, type: 2}
+  m_Animations: []
+  m_WrapMode: 0
+  m_PlayAutomatically: 1
+  m_AnimatePhysics: 0
+  m_CullingType: 0
 --- !u!1 &1799118625977627544
 GameObject:
   m_ObjectHideFlags: 0

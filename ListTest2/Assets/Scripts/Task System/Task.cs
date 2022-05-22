@@ -224,10 +224,10 @@ public class Task_SetStateOnMachine : ITask
     public ITask.Status status { get; set; }
     public GameObject machine { get; set; }
     ITask.Status ITask.status { get; set; }
-    public int machineState { get; set; }
+    public Machine.State machineState { get; set; }
     public float clickingtime { get; set; }
 
-    public Task_SetStateOnMachine(int priority, GameObject machine, int machineState)
+    public Task_SetStateOnMachine(int priority, GameObject machine, Machine.State machineState)
     {
         this.priority = priority;
         this.title = "Change state on machine";
@@ -241,11 +241,14 @@ public class Task_SetStateOnMachine : ITask
     {
         if (owner != null && machine != null)
         {
-            var ownerTask = owner.GetComponent<AgentController>().myCurrentTask;
+            //Debug.Log("Task SetStateOnMachine has both owner and machine: " + owner.name + " : " + machine.ToString());
+            //var ownerTask = owner.GetComponent<AgentController>().myCurrentTask;
+            var ownerTask = owner.GetComponent<OperatorAI>().myCurrentTask;
             var ownerAIPath = owner.GetComponent<AIPath>();
-            Vector2 targetpos;
-
+            
             SetTaskOngoing(ownerTask);
+
+            Vector2 targetpos;
             targetpos = SetButtonPosition();
             MoveToButtonPosition(ownerAIPath, targetpos);
             AtButtonPosition(ownerTask, ownerAIPath, targetpos);
@@ -263,13 +266,7 @@ public class Task_SetStateOnMachine : ITask
 
     Vector2 SetButtonPosition()
     {
-        //Set position for button on machine.
-
-        //Temporary information to give from machine later on!
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////
-        return new Vector2(machine.transform.position.x - 0.5f, machine.transform.position.y - 0.5f);//In front of.
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
+        return new Vector2(machine.GetComponent<Machine>().GetOperatorStartPos().transform.position.x, machine.GetComponent<Machine>().transform.position.y);
     }
 
     void MoveToButtonPosition(AIPath ownerAIPath, Vector2 targetpos)
@@ -287,7 +284,7 @@ public class Task_SetStateOnMachine : ITask
 
     void AtButtonPosition(ITask ownerTask, AIPath ownerAIPath, Vector2 targetpos)
     {
-        if (Vector2.Distance((Vector2)owner.transform.position, targetpos) <= 0.2f)
+        if (Vector2.Distance((Vector2)owner.transform.position, targetpos) <= 1f)
         {
             //Set destination to current position of character. Helping against precision which was a little buggy.
             //Can be tested later to remove but solved it like this for now.
@@ -303,7 +300,7 @@ public class Task_SetStateOnMachine : ITask
             if (clickingtime <= 0)
             {
                 //Set new machine state
-                machine.GetComponent<Machine>().SetState(Machine.State.Stopped);    //Set stopped, Operator will come and start
+                machine.GetComponent<Machine>().SetState(machineState);
 
                 //Set task completed
                 if (ownerTask.status != ITask.Status.Completed)
@@ -331,8 +328,10 @@ public class Task_RepairMachine : ITask
     public List<Vector2> destinations { get; set; }
     public Vector2 targetPos { get; set; }
     public bool repairOnEachPos { get; set; }
+    public bool initiated { get; set; }
 
- 
+
+
 
     public Task_RepairMachine(int priority, GameObject machine, int repairAmount)
     {
@@ -345,7 +344,10 @@ public class Task_RepairMachine : ITask
         this.status = ITask.Status.Available;
         this.timeOnEachPosition = 5; //5 seconds on each position now.
         this.timeOnEachPositionCounter = 0;
+        this.initiated = false;
     }
+
+    
     public void DoTask()
     {
         if (owner != null && machine != null)
@@ -354,7 +356,7 @@ public class Task_RepairMachine : ITask
             var ownerAIPath = owner.GetComponent<AIPath>();
 
             SetTaskOngoing(ownerTask);
-
+            
             SetNewRepairPositionAfterCountdown();
             MoveToNextRepairPosition(ownerAIPath);
             AtRepairPosition(ownerTask, ownerAIPath);
@@ -407,11 +409,20 @@ public class Task_RepairMachine : ITask
 
     void AtRepairPosition(ITask ownerTask, AIPath ownerAIPath)
     {
+
         //When arrived at repair position
         if (Vector2.Distance((Vector2)owner.transform.position, targetPos) <= 0.5f)
         {
             CountdownOnEachRepairPosition();
-            
+
+            //Do things at first arrival
+            if (this.initiated == false)
+            {
+                this.initiated = true;
+                machine.GetComponent<Machine>().SetState(Machine.State.Repairing);
+            }
+
+
             //Set destination to current position of character. Helping against precision which was a little buggy.
             //Can be tested later to remove but solved it like this for now.
             if (ownerAIPath.destination != owner.transform.position)
@@ -443,8 +454,12 @@ public class Task_RepairMachine : ITask
                 if (ownerTask.status != ITask.Status.Completed)
                 {
 
-                    //owner.GetComponent<AgentController>().SetIsInteracting(false); //Set false just in case it hasn't stopped yet
-                    machine.GetComponent<Machine>().SetState(Machine.State.Stopped);//JUST STOP MACHINE AFTER REPAIR! TEMPORARY
+                    //Generate a task for operators to start the machine
+                    GameObject taskManager = GameObject.Find("TaskManager");
+                    taskManager.GetComponent<TaskManagerScript>().CreateOperatorTask_SetStateOnMachine(1, machine, Machine.State.Running);
+                    
+                    //Set the machine to stopped meanwhile
+                    machine.GetComponent<Machine>().SetState(Machine.State.Stopped);
                     ownerTask.status = ITask.Status.Completed;
 
                     //TEMPORARY HANDLE AUDIO FOR INTERACTION IN WORKER LATER ON.

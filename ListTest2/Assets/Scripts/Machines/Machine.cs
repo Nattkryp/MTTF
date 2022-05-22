@@ -60,14 +60,20 @@ public class Machine : MonoBehaviour
         {
 
             case State.Stopped:
+                soundRunning.Stop();
                 soundRunning.loop = false;
                 lightIndicator.SetLight(Color.yellow, lightIntensity, false, 0, 0);
+                transform.Find("ropes").GetComponent<SpriteRenderer>().enabled = false;
                 break;
 
             case State.Running:
                 lightIndicator.SetLight(Color.green, lightIntensity, false, 0, 0);
+                if (!soundRunning.isPlaying)
+                {
                 soundRunning.Play();
                 soundRunning.loop = true;
+                }
+                
                 _condition -= _decayRate * Time.deltaTime;
 
                 if (_breakTryTimer <= 0)
@@ -75,20 +81,22 @@ public class Machine : MonoBehaviour
                     _breakTryTimer = _breakTryCooldown;
                     TryBreakDown(_condition);
                 }
-
                 break;
 
             case State.Broken:
+                soundRunning.Stop();
+                soundRunning.loop = false;
                 lightIndicator.SetLight(Color.red, lightIntensity, true, 1, 1);
                 break;
 
             case State.Repairing:
-                lightIndicator.SetLight(Color.red, lightIntensity, false, 0, 0);
+                soundRunning.Stop();
+                soundRunning.loop = false;
+                lightIndicator.SetLight(Color.blue, lightIntensity, false, 0, 0);
+                transform.Find("ropes").GetComponent<SpriteRenderer>().enabled = true;
                 break;
         }
 
-        //SetLight(); //Machines state to set the lights accordinglyo
-        //soundClick.Play(); //"Press button" sound to be played if worker sets start or stop
     }
 
     public void SetState(State _state) {

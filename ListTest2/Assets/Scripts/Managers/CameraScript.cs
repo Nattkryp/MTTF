@@ -8,11 +8,12 @@ public class CameraScript : MonoBehaviour
     Camera cam;
     public Text gameSpeed;
     public float baseScrollSpeed = 4f;
+    Transform audiolistener;
 
     private void Start()
     {
         cam= GetComponent<Camera>();
-        
+        audiolistener = transform.Find("Listener");
     }
 
     public void SetGameSpeed(int x) {
@@ -24,6 +25,8 @@ public class CameraScript : MonoBehaviour
         CameraMovement();
         gameSpeed.text = Time.timeScale.ToString() + "x";
 
+        Vector3 newAudiolistenerPosition = new Vector3(audiolistener.transform.position.x, audiolistener.transform.position.y, cam.orthographicSize * -1);
+        audiolistener.transform.position = newAudiolistenerPosition;
     }
 
     public void CameraMovement()
