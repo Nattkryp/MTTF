@@ -46,6 +46,26 @@ public class OperatorAI : MonoBehaviour {
         allMachines = GameObject.FindGameObjectsWithTag("Machine");
     }
 
+    private Transform GetNearestObjectWithTag(string tagname)
+    {
+        GameObject[] sitPositions = GameObject.FindGameObjectsWithTag(tagname);
+
+        Transform tMin = null;
+        float minDist = Mathf.Infinity;
+        Vector3 currentPos = transform.position;
+        foreach (GameObject t in sitPositions)
+        {
+            float dist = Vector3.Distance(t.transform.position, currentPos);
+            if (dist < minDist)
+            {
+                tMin = t.transform;
+                minDist = dist;
+            }
+        }
+        return tMin;
+        
+    }
+
     private void Update()
     {
         
@@ -57,27 +77,16 @@ public class OperatorAI : MonoBehaviour {
         {
             Debug.Log("I have no task, ill request");
             myCurrentTask = taskManagerScript.OperatorRequestTask(gameObject);
+            
+            //If no target, go sit somewhere close
             if (myCurrentTask == null)
             {
-                Debug.Log("Didn't recieve a new specific task");
+                Transform nearestSitPosition;
+                nearestSitPosition = GetNearestObjectWithTag("WorkIdleSpot");
 
-                GameObject[] allSitPositions = GameObject.FindGameObjectsWithTag("WorkIdleSpot");
-                GameObject nearestSitposition = null;
-
-                float nearestDistance = 999;
-                foreach (GameObject sitposition in allSitPositions)
+                if (nearestSitPosition != null)
                 {
-                    Debug.Log(Vector2.Distance(transform.position, sitposition.transform.position));
-                    if (Vector2.Distance(transform.position, sitposition.transform.position) < nearestDistance) {
-                    nearestSitposition = sitposition;
-                    }
-
-                }
-
-                if (nearestSitposition != null)
-                {
-                    Debug.Log("The nearest one were: " + nearestSitposition.transform.position);
-                    aIPath.destination = nearestSitposition.transform.position;
+                    aIPath.destination = nearestSitPosition.transform.position;
                 }
             }
 

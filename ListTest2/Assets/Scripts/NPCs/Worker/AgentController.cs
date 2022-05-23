@@ -18,8 +18,8 @@ public class AgentController : MonoBehaviour
     public ITask myCurrentTask;
     public string myCurrentTaskType;
 
-    float waitToAskForTaskTimeMin = 2;       //The time set to reset the timer
-    float waitToAskForTaskTimeMax = 10;            //The actual countdown number of the timer
+    float waitToAskForTaskTimeMin = 30;         
+    float waitToAskForTaskTimeMax = 120;            
     public float waitToAskForTaskTimer = 5;
 
     //Task performance modifier
@@ -115,6 +115,11 @@ public class AgentController : MonoBehaviour
                     DoTask();                   // If have task that is not completed   Perform the current task according to the task specification
                     GoReportWorkComplete();     // If have task that _is_ completed     Go to task manaage position and report task and forget about it
                 }
+
+                else
+                {
+                
+                }
                 
 
                 break;
@@ -125,7 +130,7 @@ public class AgentController : MonoBehaviour
                     MoveToNeedTarget();
                     break;
                 case 3:
-                    //agents figure out what they need and sort that out. Agent's need-decay is haltet.
+                    //agents leave work and "go home"
                     LeaveWork();
                     MoveToNeedTarget();
                     break;
@@ -135,8 +140,26 @@ public class AgentController : MonoBehaviour
             }
     }
 
+    private Transform GetNearestObjectWithTag(string tagname)
+    {
+        GameObject[] sitPositions = GameObject.FindGameObjectsWithTag(tagname);
 
-    private void OnTriggerEnter2D(Collider2D other)
+        Transform tMin = null;
+        float minDist = Mathf.Infinity;
+        Vector3 currentPos = transform.position;
+        foreach (GameObject t in sitPositions)
+        {
+            float dist = Vector3.Distance(t.transform.position, currentPos);
+            if (dist < minDist)
+            {
+                tMin = t.transform;
+                minDist = dist;
+            }
+        }
+        return tMin;
+    }
+
+        private void OnTriggerEnter2D(Collider2D other)
     {
 //        Debug.Log("Agent Got triggered by " + other);
         if (other.gameObject.GetComponent<Interactable>() != null)
@@ -245,10 +268,13 @@ public class AgentController : MonoBehaviour
 
             //Wait for anti-spam timer if needed before requesting again
             waitToAskForTaskTimer -= Time.deltaTime;
-            if (myCurrentTask == null && waitToAskForTaskTimer <= 0f)
+            if (myCurrentTask == null && waitToAskForTaskTimer <= 0f && Vector2.Distance(transform.position, taskBoard.transform.position) < 0.5f)
             {
-                waitToAskForTaskTimer = 3f;
+                waitToAskForTaskTimer = Random.Range(waitToAskForTaskTimeMin, waitToAskForTaskTimeMax);
                 myCurrentTask = taskManagerScript.WorkerRequestTask(gameObject);
+            } else if (myCurrentTask == null && waitToAskForTaskTimer >= 0f)
+            {
+                aiPath.destination = favoriteStool.GetSitPosition().position;
             }
         }
     }

@@ -164,7 +164,7 @@ MonoBehaviour:
   state: 0
   _maxCondition: 100
   _condition: 100
-  _decayRate: 0.07
+  _decayRate: 0.01
   _breakTryCooldown: 3
   _breakTryTimer: 1
   lightIndicator: {fileID: 6366552894437456593}
@@ -211,7 +211,7 @@ MonoBehaviour:
   - {x: -1.5138692, y: -0.75781107, z: 0}
   m_ShapePathHash: -1862130280
   m_Mesh: {fileID: 0}
-  m_InstanceId: -1206
+  m_InstanceId: -2122
 --- !u!61 &1938356225
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1121,6 +1121,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: WorkStool
       objectReference: {fileID: 0}
+    - target: {fileID: 1660496322750728965, guid: e772d252bb3e95145ac1ff3753857181, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
+      objectReference: {fileID: 0}
     - target: {fileID: 1660496322750728966, guid: e772d252bb3e95145ac1ff3753857181, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -1164,6 +1168,14 @@ PrefabInstance:
     - target: {fileID: 1660496322750728966, guid: e772d252bb3e95145ac1ff3753857181, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5032486961734687884, guid: e772d252bb3e95145ac1ff3753857181, type: 3}
+      propertyPath: m_TagString
+      value: WorkIdleSpot
+      objectReference: {fileID: 0}
+    - target: {fileID: 6649597466531690978, guid: e772d252bb3e95145ac1ff3753857181, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.47
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e772d252bb3e95145ac1ff3753857181, type: 3}

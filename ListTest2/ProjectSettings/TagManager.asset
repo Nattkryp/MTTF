@@ -12,6 +12,7 @@ TagManager:
   - WorkIdleSpot
   - TaskBoard
   - Worker
+  - WorkerIdleSpot
   layers:
   - Default
   - TransparentFX
